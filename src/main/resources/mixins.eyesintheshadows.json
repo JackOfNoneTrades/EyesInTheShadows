@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.8.7-GTNH",
+  "package": "org.fentanylsolutions.eyesintheshadows.mixins.mid",
+  "refmap": "mixins.eyesintheshadows.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "client" : [
+  ]
+}
