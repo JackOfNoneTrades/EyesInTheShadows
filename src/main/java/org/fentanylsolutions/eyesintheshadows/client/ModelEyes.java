@@ -36,10 +36,12 @@ public class ModelEyes extends ModelBase {
     protected static final double CYCLES_PER_BLOCK = 3.0D;
 
     public ModelEyes() {
-        head = new ModelRenderer(this, 120, 420);
+        //head = new ModelRenderer(this, 120, 420);
+        head = new ModelRenderer(this, 0, 0);
         //head.addBox(-32F, -32F, 0F, 32, 32, 0);
         //head.addBox(100F, 100F, 100F, 100, 132, 100);
-        head.setRotationPoint(16F, 22F, 0F);
+        // head.setRotationPoint(16F, 22F, 0F);
+        head.setRotationPoint(0F, 0F, 0F);
         head.setTextureSize(textureWidth, textureHeight);
         setRotation(head, 0F, 0F, 0F);
     }
@@ -50,14 +52,13 @@ public class ModelEyes extends ModelBase {
     @Override
     public void render(Entity parEntity, float parTime, float parSwingSuppress, float par4, float parHeadAngleY,
         float parHeadAngleX, float par7) {
-        // best to cast to actual expected entity, to allow access to custom fields
 
         // related to animation
         renderEyes((EntityEyes) parEntity, parTime, parSwingSuppress, par4, parHeadAngleY, parHeadAngleX, par7);
         super.render(parEntity, parTime, parSwingSuppress, par4, parHeadAngleY, parHeadAngleX, par7);
     }
 
-    float lol = 0;
+    float time = 0;
     public void renderEyes(EntityEyes parEntity, float parTime, float parSwingSuppress, float par4, float parHeadAngleY,
         float parHeadAngleX, float par7) {
         if (!parEntity.isEntityAlive()) {
@@ -130,12 +131,11 @@ public class ModelEyes extends ModelBase {
 
         // scale the whole thing for big or small entities
         GL11.glPushMatrix();
+
+        GL11.glTranslatef(0.0F, 1, 0.0F);
         /// GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
 
-        GL11.glScalef(
-            Config.scaleFactor,
-            Config.scaleFactor,
-            Config.scaleFactor);
+        GL11.glScalef(Config.scaleFactor, Config.scaleFactor, Config.scaleFactor);
 
 
         /*float viewerYaw = RenderManager.instance.playerViewY;
@@ -159,6 +159,13 @@ public class ModelEyes extends ModelBase {
 
         /* There is some other render code elsewhere that flips the entity for some reason */
         GL11.glRotatef(180F, 1, 0, 0);
+
+        if (parEntity.waveAmplitude > 0 && parEntity.waveSpeed > 0) {
+            time += 0.01f;
+            // time %= (float) (2 * Math.PI / parEntity.waveSpeed);
+            float offsetY_ = (float) Math.sin(time * parEntity.waveSpeed) * parEntity.waveAmplitude;
+            GL11.glTranslatef(0.0F, offsetY_, 0.0F);
+        }
 
         GL11.glEnable(GL11.GL_BLEND);
         // GL11.glDisable(GL11.GL_ALPHA_TEST);

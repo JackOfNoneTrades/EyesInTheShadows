@@ -51,7 +51,7 @@ public class EyesMonsterPlacer extends ItemMonsterPlacer {
 
     /**
      * Callback for item usage. If the item does something special on right clicking,
-     * 
+     *
      * he will have one of those. Return
      * True if something happen and false if it don't. This is for ITEMS, not BLOCKS
      */
@@ -76,7 +76,7 @@ public class EyesMonsterPlacer extends ItemMonsterPlacer {
                 d0 = 0.5D;
             }
 
-            Entity entity = spawnEntity(par3World, par4 + 0.5D, par5 + d0, par6 + 0.5D);
+            Entity entity = spawnEntity(par3World, par4 + 0.5D, par5 + d0 + 1, par6 + 0.5D);
 
             if (entity != null) {
                 if (entity instanceof EntityLivingBase && par1ItemStack.hasDisplayName()) {
@@ -94,7 +94,7 @@ public class EyesMonsterPlacer extends ItemMonsterPlacer {
 
     /**
      * Called whenever this item is equipped and the right mouse button is pressed.
-     * 
+     *
      * Args: itemStack, world, entityPlayer
      */
     @Override
@@ -157,7 +157,7 @@ public class EyesMonsterPlacer extends ItemMonsterPlacer {
 
     /**
      * Spawns the creature specified by the egg's type in the location specified by
-     * 
+     *
      * the last three parameters.
      * Parameters: world, entityID, x, y, z.
      */

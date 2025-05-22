@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
 import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
-import org.lwjgl.opengl.GL11;
 
 public class EyesRenderer extends RenderLiving {
 

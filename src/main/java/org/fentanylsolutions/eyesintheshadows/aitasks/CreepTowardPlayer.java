@@ -9,11 +9,11 @@ import org.fentanylsolutions.eyesintheshadows.mixins.early.minecraft.AccessorEnt
 
 public class CreepTowardPlayer extends EntityAIAttackOnCollide {
 
-    private final EntityEyes eyes;
+    private EntityEyes eyes;
 
     public CreepTowardPlayer(EntityCreature creature, double p_i1636_2_, boolean p_i1636_4_) {
         super(creature, p_i1636_2_, p_i1636_4_);
-        eyes = (EntityEyes) creature;
+        // eyes = (EntityEyes) creature;
     }
 
     @Override

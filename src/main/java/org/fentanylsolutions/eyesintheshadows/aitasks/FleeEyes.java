@@ -11,7 +11,7 @@ public class FleeEyes extends EntityAIAvoidEntity {
     EntityCreature entityCreature;
 
     public FleeEyes(EntityCreature entityCreature, Class p_i1616_2_, float p_i1616_3_, double p_i1616_4_,
-        double p_i1616_6_) {
+                    double p_i1616_6_) {
         super(entityCreature, p_i1616_2_, p_i1616_3_, p_i1616_4_, p_i1616_6_);
         this.entityCreature = entityCreature;
     }

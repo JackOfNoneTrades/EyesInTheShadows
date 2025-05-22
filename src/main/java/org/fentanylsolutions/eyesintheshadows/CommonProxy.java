@@ -1,11 +1,14 @@
 package org.fentanylsolutions.eyesintheshadows;
 
+import cpw.mods.fml.common.Loader;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
 
 import org.fentanylsolutions.eyesintheshadows.command.CommandTest;
 import org.fentanylsolutions.eyesintheshadows.entity.entities.EntityEyes;
 import org.fentanylsolutions.eyesintheshadows.event.CommonEventHandler;
+import org.fentanylsolutions.eyesintheshadows.modcompat.ForbiddenMagicCompat;
+import org.fentanylsolutions.eyesintheshadows.modcompat.ThaumcraftCompat;
 import org.fentanylsolutions.eyesintheshadows.packet.PacketHandler;
 import org.fentanylsolutions.eyesintheshadows.util.MobUtil;
 import org.fentanylsolutions.eyesintheshadows.util.PotionUtil;
@@ -66,6 +69,12 @@ public class CommonProxy {
         FMLCommonHandler.instance()
             .bus()
             .register(eyesSpawningManager);
+
+        if (Loader.isModLoaded("Thaumcraft")) {
+            ThaumcraftCompat.registerAspects();
+        } else if (Loader.isModLoaded("ForbiddenMagic")) {
+            ForbiddenMagicCompat.registerAspects();
+        }
     }
 
     public void serverAboutToStart(FMLServerAboutToStartEvent event) {

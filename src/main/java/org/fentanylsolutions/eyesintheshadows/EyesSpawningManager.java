@@ -195,7 +195,7 @@ public class EyesSpawningManager {
             double sX = (1 - 2 * EyesInTheShadows.varInstanceCommon.rand.nextFloat()) * d + positionVec.xCoord;
             double sY = MathHelper.clamp_int(
                 (int) (EyesInTheShadows.varInstanceCommon.rand.nextFloat() * d + positionVec.yCoord),
-                0,
+                1,
                 255);
             double sZ = (1 - 2 * EyesInTheShadows.varInstanceCommon.rand.nextFloat()) * d + positionVec.zCoord;
 
@@ -226,6 +226,7 @@ public class EyesSpawningManager {
                  */
 
                 entity.setPosition(pX, pY, pZ);
+                EyesInTheShadows.LOG.debug("Spawned eyes @ {" + pX + ";" + pY + ";" + pZ + "}");
                 player.worldObj.spawnEntityInWorld(entity);
 
                 return;

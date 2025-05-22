@@ -1,10 +1,14 @@
 package org.fentanylsolutions.eyesintheshadows;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+import net.minecraft.potion.Potion;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
+import org.fentanylsolutions.eyesintheshadows.util.PotionUtil;
 import org.fentanylsolutions.eyesintheshadows.util.Util;
 
 import cpw.mods.fml.client.config.GuiConfigEntries;
@@ -33,6 +37,7 @@ public class Config {
         public static final String[] potionLookNames = {};
         public static final int potionLookDuration = 10;
         public static final int potionLookAmplifier = 0;
+        public static final Potion[] potionIgnoreDisappearNames = {Potion.blindness, Potion.invisibility};
 
         /* eye aggression */
         public static final boolean enableEyeAggressionEscalation = true;
@@ -85,6 +90,10 @@ public class Config {
         public static final boolean mobsFleeDormantEyes = false;
         public static final float damageFromWet = 0;
         public static final int spawnCycleSpawnWarningTime = 200;
+        public static final float waveMotionMinAmplitude = 0.03f;
+        public static final float waveMotionMaxAmplitude = 0.1f;
+        public static final float waveMotionMinSpeed = 0.05f;
+        public static final float waveMotionMaxSpeed = 0.2f;
 
         /* sound_volumes */
         public static final float eyeIdleVolume = 1;
@@ -119,6 +128,7 @@ public class Config {
     public static String[] potionLookNames = Defaults.potionLookNames;
     public static int potionLookDuration = Defaults.potionLookDuration;
     public static int potionLookAmplifier = Defaults.potionLookAmplifier;
+    public static Potion[] potionIgnoreDisappearNames = Defaults.potionIgnoreDisappearNames;
 
     /* eye aggression */
     public static boolean enableEyeAggressionEscalation = Defaults.enableEyeAggressionEscalation;
@@ -177,6 +187,10 @@ public class Config {
     public static boolean mobsFleeDormantEyes = Defaults.mobsFleeDormantEyes;
     public static float damageFromWet = Defaults.damageFromWet;
     public static int spawnCycleSpawnWarningTime = Defaults.spawnCycleSpawnWarningTime;
+    public static float waveMotionMinAmplitude = Defaults.waveMotionMinAmplitude;
+    public static float waveMotionMaxAmplitude = Defaults.waveMotionMaxAmplitude;
+    public static float waveMotionMinSpeed = Defaults.waveMotionMinSpeed;
+    public static float waveMotionMaxSpeed = Defaults.waveMotionMaxSpeed;
 
     public static void synchronizeConfigurationClient(File configFile, boolean force, boolean load) {
         if (!loaded || force) {
@@ -344,6 +358,13 @@ public class Config {
             0,
             Integer.MAX_VALUE);
         potionLookAmplifier = potionLookAmplifierProperty.getInt();
+
+        Property potionIgnoreDisappearNamesProperty = config.get(
+            Categories.potion,
+            "potionIgnoreDisappearNames",
+            potionToStrArray(Defaults.potionIgnoreDisappearNames),
+            "List of potion effect names that prevent the eyes from disappearing while being looked at.");
+        potionIgnoreDisappearNames = stringToPotionArr(potionIgnoreDisappearNamesProperty.getStringList());
 
         /* eye aggro */
         Property eyeBaseAttackDamageProperty = config.get(
@@ -605,6 +626,43 @@ public class Config {
             0,
             Float.MAX_VALUE);
         spawnCycleSpawnWarningTime = (int) spawnCycleSpawnWarningTimeProperty.getDouble();
+        
+        Property waveMotionMinAmplitudeProperty = config.get(
+            Categories.misc,
+            "waveMotionMinAmplitude",
+            Defaults.waveMotionMinAmplitude,
+            "",
+            0,
+            Float.MAX_VALUE);
+        waveMotionMinAmplitude = (float) waveMotionMinAmplitudeProperty.getDouble();
+
+        Property waveMotionMaxAmplitudeProperty = config.get(
+            Categories.misc,
+            "waveMotionMaxAmplitude",
+            Defaults.waveMotionMaxAmplitude,
+            "",
+            0,
+            Float.MAX_VALUE);
+        waveMotionMaxAmplitude = (float) waveMotionMaxAmplitudeProperty.getDouble();
+
+        Property waveMotionMinSpeedProperty = config.get(
+            Categories.misc,
+            "waveMotionMinSpeed",
+            Defaults.waveMotionMinSpeed,
+            "",
+            0,
+            Float.MAX_VALUE);
+        waveMotionMinSpeed = (float) waveMotionMinSpeedProperty.getDouble();
+
+        Property waveMotionMaxSpeedProperty = config.get(
+            Categories.misc,
+            "waveMotionMaxSpeed",
+            Defaults.waveMotionMaxSpeed,
+            "",
+            0,
+            Float.MAX_VALUE);
+        waveMotionMaxSpeed = (float) waveMotionMaxSpeedProperty.getDouble();
+
 
         /* Mob interactions */
         Property eyesAttackTamedWolvesProperty = config.get(
@@ -683,5 +741,34 @@ public class Config {
         EyesInTheShadows.varInstanceCommon.buildPotionList();
         EyesInTheShadows.varInstanceCommon.buildDimensionList();
         EyesInTheShadows.varInstanceCommon.buildMobLists();
+    }
+
+    protected static String[] potionToStrArray(Potion[] potionArr) {
+        if (potionArr == null) {
+            return new String[0];
+        }
+
+        String[] result = new String[potionArr.length];
+        for (int i = 0; i < potionArr.length; i++) {
+            result[i] = potionArr[i].getName();
+        }
+        return result;
+    }
+
+    protected static Potion[] stringToPotionArr(String[] names) {
+        if (names == null) {
+            return new Potion[0];
+        }
+
+        List<Potion> result = new ArrayList<>();
+        for (String name : names) {
+            Potion potion = PotionUtil.getPotionByName(name);
+            if (potion != null) {
+                result.add(potion);
+            } else {
+                EyesInTheShadows.LOG.warn("Unknown potion name: {}", name);
+            }
+        }
+        return result.toArray(new Potion[0]);
     }
 }
