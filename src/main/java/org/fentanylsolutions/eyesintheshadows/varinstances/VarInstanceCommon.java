@@ -10,7 +10,11 @@ import net.minecraft.world.WorldProvider;
 import org.fentanylsolutions.eyesintheshadows.Config;
 import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 import org.fentanylsolutions.eyesintheshadows.mixins.early.minecraft.AccessorDimensionManager;
-import org.fentanylsolutions.eyesintheshadows.util.*;
+import org.fentanylsolutions.eyesintheshadows.util.DimensionUtil;
+import org.fentanylsolutions.eyesintheshadows.util.MobUtil;
+import org.fentanylsolutions.eyesintheshadows.util.PotionUtil;
+import org.fentanylsolutions.eyesintheshadows.util.TimeUtil;
+import org.fentanylsolutions.eyesintheshadows.util.XSTR;
 
 import cpw.mods.fml.common.Loader;
 

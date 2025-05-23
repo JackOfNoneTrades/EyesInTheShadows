@@ -1,6 +1,7 @@
 package org.fentanylsolutions.eyesintheshadows.util;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
