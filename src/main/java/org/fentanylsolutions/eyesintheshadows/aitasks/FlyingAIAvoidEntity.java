@@ -27,7 +27,8 @@ public class FlyingAIAvoidEntity extends EntityAIBase {
     private int fleeingTicks = 0;
     private static final int MAX_FLEEING_TICKS = 60;
 
-    public FlyingAIAvoidEntity(EntityEyes entity, Class targetClass, float distance, double farSpeed, double nearSpeed) {
+    public FlyingAIAvoidEntity(EntityEyes entity, Class targetClass, float distance, double farSpeed,
+        double nearSpeed) {
         this.entity = entity;
         this.targetEntityClass = targetClass;
         this.distanceFromEntity = distance;
@@ -46,12 +47,7 @@ public class FlyingAIAvoidEntity extends EntityAIBase {
 
         List list = this.entity.worldObj.getEntitiesWithinAABB(
             this.targetEntityClass,
-            this.entity.boundingBox.expand(
-                this.distanceFromEntity,
-                this.distanceFromEntity,
-                this.distanceFromEntity
-            )
-        );
+            this.entity.boundingBox.expand(this.distanceFromEntity, this.distanceFromEntity, this.distanceFromEntity));
 
         if (list.isEmpty()) {
             return false;
@@ -77,13 +73,11 @@ public class FlyingAIAvoidEntity extends EntityAIBase {
         return true;
     }
 
-
     @Override
     public boolean continueExecuting() {
         // Continue until we've lost the entity or have been fleeing for a while
-        return this.fleeingTicks < MAX_FLEEING_TICKS &&
-            this.entity.getDistanceSqToEntity(this.closestLivingEntity) <
-                (double)(this.distanceFromEntity * this.distanceFromEntity);
+        return this.fleeingTicks < MAX_FLEEING_TICKS && this.entity.getDistanceSqToEntity(this.closestLivingEntity)
+            < (double) (this.distanceFromEntity * this.distanceFromEntity);
     }
 
     @Override
@@ -94,7 +88,8 @@ public class FlyingAIAvoidEntity extends EntityAIBase {
     @Override
     public void resetTask() {
         this.closestLivingEntity = null;
-        this.fleeingTicks = 40 + this.entity.getRNG().nextInt(20);
+        this.fleeingTicks = 40 + this.entity.getRNG()
+            .nextInt(20);
     }
 
     @Override
@@ -122,9 +117,8 @@ public class FlyingAIAvoidEntity extends EntityAIBase {
 
             // Cap velocity to prevent overshooting
             double maxVel = speed / 5.0;
-            double velSq = this.entity.motionX * this.entity.motionX +
-                this.entity.motionY * this.entity.motionY +
-                this.entity.motionZ * this.entity.motionZ;
+            double velSq = this.entity.motionX * this.entity.motionX + this.entity.motionY * this.entity.motionY
+                + this.entity.motionZ * this.entity.motionZ;
 
             if (velSq > maxVel * maxVel) {
                 double velFactor = maxVel / Math.sqrt(velSq);
@@ -145,7 +139,7 @@ public class FlyingAIAvoidEntity extends EntityAIBase {
         double closestDistSq = Double.MAX_VALUE;
 
         for (Object obj : entities) {
-            Entity entity = (Entity)obj;
+            Entity entity = (Entity) obj;
             double distSq = this.entity.getDistanceSqToEntity(entity);
 
             if (distSq < closestDistSq) {
@@ -166,9 +160,12 @@ public class FlyingAIAvoidEntity extends EntityAIBase {
         double dy = this.entity.posY - this.closestLivingEntity.posY;
         double dz = this.entity.posZ - this.closestLivingEntity.posZ;
 
-        dx += this.entity.getRNG().nextGaussian() * 2.0;
-        dy += this.entity.getRNG().nextGaussian() * 2.0 + 2.0;
-        dz += this.entity.getRNG().nextGaussian() * 2.0;
+        dx += this.entity.getRNG()
+            .nextGaussian() * 2.0;
+        dy += this.entity.getRNG()
+            .nextGaussian() * 2.0 + 2.0;
+        dz += this.entity.getRNG()
+            .nextGaussian() * 2.0;
 
         double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (length > 0) {
@@ -178,16 +175,13 @@ public class FlyingAIAvoidEntity extends EntityAIBase {
         }
 
         // Scale by desired escape distance (10-15 blocks)
-        double escapeDistance = 10.0 + this.entity.getRNG().nextDouble() * 5.0;
+        double escapeDistance = 10.0 + this.entity.getRNG()
+            .nextDouble() * 5.0;
         dx *= escapeDistance;
         dy *= escapeDistance;
         dz *= escapeDistance;
 
         // Return the escape point
-        return Vec3.createVectorHelper(
-            this.entity.posX + dx,
-            this.entity.posY + dy,
-            this.entity.posZ + dz
-        );
+        return Vec3.createVectorHelper(this.entity.posX + dx, this.entity.posY + dy, this.entity.posZ + dz);
     }
 }

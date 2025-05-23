@@ -1,6 +1,5 @@
 package org.fentanylsolutions.eyesintheshadows;
 
-import cpw.mods.fml.common.Loader;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -17,6 +16,7 @@ import org.fentanylsolutions.eyesintheshadows.varinstances.VarInstanceCommon;
 import org.fentanylsolutions.eyesintheshadows.varinstances.VarInstanceServer;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -83,11 +83,11 @@ public class CommonProxy {
 
     // register server commands in this event handler
     public void serverStarting(FMLServerStartingEvent event) {
-        //if (Util.isServer()) {
-            if (EyesInTheShadows.isDebugMode()) {
-                event.registerServerCommand(new CommandTest());
-            }
-        //}
+        // if (Util.isServer()) {
+        if (EyesInTheShadows.isDebugMode()) {
+            event.registerServerCommand(new CommandTest());
+        }
+        // }
     }
 
     public void serverStarted(FMLServerStartedEvent event) {

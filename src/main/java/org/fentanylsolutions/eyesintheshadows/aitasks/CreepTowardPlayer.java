@@ -3,7 +3,6 @@ package org.fentanylsolutions.eyesintheshadows.aitasks;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIAttackOnCollide;
 
-import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 import org.fentanylsolutions.eyesintheshadows.entity.entities.EntityEyes;
 import org.fentanylsolutions.eyesintheshadows.mixins.early.minecraft.AccessorEntityAIAttackOnCollide;
 
@@ -36,7 +35,7 @@ public class CreepTowardPlayer extends EntityAIAttackOnCollide {
     public void updateTask() {
         double speed = eyes.getSpeedFromAggro();
         // EyesInTheShadows.debug("aggro: " + eyes.getAggroLevel() + ", speed: " + speed);
-        ((AccessorEntityAIAttackOnCollide)this).setSpeedTowardsTarget(speed);
+        ((AccessorEntityAIAttackOnCollide) this).setSpeedTowardsTarget(speed);
         super.updateTask();
     }
 }

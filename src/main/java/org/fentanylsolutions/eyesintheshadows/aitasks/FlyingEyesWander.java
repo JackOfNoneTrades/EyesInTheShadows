@@ -7,6 +7,7 @@ import net.minecraft.util.MathHelper;
 import org.fentanylsolutions.eyesintheshadows.entity.entities.EntityEyes;
 
 public class FlyingEyesWander extends EntityAIBase {
+
     private EntityEyes eyes;
     private double xPosition;
     private double yPosition;
@@ -41,7 +42,8 @@ public class FlyingEyesWander extends EntityAIBase {
 
         // Random chance to execute
         if (!this.mustUpdate) {
-            if (this.eyes.getRNG().nextInt(this.executionChance) != 0) {
+            if (this.eyes.getRNG()
+                .nextInt(this.executionChance) != 0) {
                 return false;
             }
         }
@@ -63,9 +65,8 @@ public class FlyingEyesWander extends EntityAIBase {
     @Override
     public boolean continueExecuting() {
         // If the entity gets a target or player is looking at it, stop wandering
-        if (this.eyes.getAttackTarget() != null ||
-            eyes.isPlayerLookingInMyGeneralDirection() ||
-            eyes.getBrightness() <= 0) {
+        if (this.eyes.getAttackTarget() != null || eyes.isPlayerLookingInMyGeneralDirection()
+            || eyes.getBrightness() <= 0) {
             return false;
         }
 
@@ -94,7 +95,8 @@ public class FlyingEyesWander extends EntityAIBase {
 
         // Update movement direction periodically
         if (this.courseChangeCooldown-- <= 0) {
-            this.courseChangeCooldown = 10 + this.eyes.getRNG().nextInt(400);
+            this.courseChangeCooldown = 10 + this.eyes.getRNG()
+                .nextInt(400);
         }
 
         if (distance > 0) {
@@ -107,9 +109,8 @@ public class FlyingEyesWander extends EntityAIBase {
 
             // Limit velocity to prevent overshooting
             double maxVelocity = this.speed / 10.0;
-            double velocitySq = this.eyes.motionX * this.eyes.motionX +
-                this.eyes.motionY * this.eyes.motionY +
-                this.eyes.motionZ * this.eyes.motionZ;
+            double velocitySq = this.eyes.motionX * this.eyes.motionX + this.eyes.motionY * this.eyes.motionY
+                + this.eyes.motionZ * this.eyes.motionZ;
 
             if (velocitySq > maxVelocity * maxVelocity) {
                 double velocityFactor = maxVelocity / Math.sqrt(velocitySq);
@@ -120,41 +121,45 @@ public class FlyingEyesWander extends EntityAIBase {
         }
 
         // If we're getting close to the target, slow down to avoid overshooting
-        /*if (distance < 4.0) {
-            this.eyes.motionX *= 0.8;
-            this.eyes.motionY *= 0.8;
-            this.eyes.motionZ *= 0.8;
-        }*/
+        /*
+         * if (distance < 4.0) {
+         * this.eyes.motionX *= 0.8;
+         * this.eyes.motionY *= 0.8;
+         * this.eyes.motionZ *= 0.8;
+         * }
+         */
     }
 
     private double[] getRandomPosition() {
         // Try to find a valid position to move to
         for (int i = 0; i < 10; i++) {
             // Random position within 10 blocks horizontally and 5 blocks vertically
-            double x = this.eyes.posX + (this.eyes.getRNG().nextFloat() * 2.0F - 1.0F) * 10.0F;
-            double z = this.eyes.posZ + (this.eyes.getRNG().nextFloat() * 2.0F - 1.0F) * 10.0F;
+            double x = this.eyes.posX + (this.eyes.getRNG()
+                .nextFloat() * 2.0F - 1.0F) * 10.0F;
+            double z = this.eyes.posZ + (this.eyes.getRNG()
+                .nextFloat() * 2.0F - 1.0F) * 10.0F;
 
             double y = this.eyes.posY + 5.0F;
 
             // Check if the position is in the air (not inside a block)
-            /*if (!this.eyes.worldObj.getCollidingBoundingBoxes(
-                this.eyes,
-                AxisAlignedBB.getBoundingBox(x-0.5, y-0.5, z-0.5, x+0.5, y+0.5, z+0.5)
-            ).isEmpty()) {
-                continue;
-            }
-
-            // Prefer positions in darker areas
-            float brightness = this.eyes.worldObj.getLightBrightness(
-                MathHelper.floor_double(x),
-                MathHelper.floor_double(y),
-                MathHelper.floor_double(z)
-            );
-
-            // Lower brightness = better (more chance to accept this position)
-            if (this.eyes.getRNG().nextFloat() < (1.0F - brightness) * 1.5F) {
-                return new double[]{x, y, z};
-            }*/
+            /*
+             * if (!this.eyes.worldObj.getCollidingBoundingBoxes(
+             * this.eyes,
+             * AxisAlignedBB.getBoundingBox(x-0.5, y-0.5, z-0.5, x+0.5, y+0.5, z+0.5)
+             * ).isEmpty()) {
+             * continue;
+             * }
+             * // Prefer positions in darker areas
+             * float brightness = this.eyes.worldObj.getLightBrightness(
+             * MathHelper.floor_double(x),
+             * MathHelper.floor_double(y),
+             * MathHelper.floor_double(z)
+             * );
+             * // Lower brightness = better (more chance to accept this position)
+             * if (this.eyes.getRNG().nextFloat() < (1.0F - brightness) * 1.5F) {
+             * return new double[]{x, y, z};
+             * }
+             */
 
             boolean foundGround = false;
             while (y > this.eyes.posY - 10.0F && !foundGround) {
@@ -171,18 +176,19 @@ public class FlyingEyesWander extends EntityAIBase {
             if (foundGround) {
                 y += 1.0F;
 
-                if (this.eyes.worldObj.getCollidingBoundingBoxes(
-                    this.eyes,
-                    AxisAlignedBB.getBoundingBox(x-0.5, y-0.5, z-0.5, x+0.5, y+0.5, z+0.5)
-                ).isEmpty()) {
+                if (this.eyes.worldObj
+                    .getCollidingBoundingBoxes(
+                        this.eyes,
+                        AxisAlignedBB.getBoundingBox(x - 0.5, y - 0.5, z - 0.5, x + 0.5, y + 0.5, z + 0.5))
+                    .isEmpty()) {
                     // prefer dark spots
                     float brightness = this.eyes.worldObj.getLightBrightness(
                         MathHelper.floor_double(x),
                         MathHelper.floor_double(y),
-                        MathHelper.floor_double(z)
-                    );
-                    if (this.eyes.getRNG().nextFloat() < (1.0F - brightness) * 1.5F) {
-                        return new double[]{x, y, z};
+                        MathHelper.floor_double(z));
+                    if (this.eyes.getRNG()
+                        .nextFloat() < (1.0F - brightness) * 1.5F) {
+                        return new double[] { x, y, z };
                     }
                 }
             }

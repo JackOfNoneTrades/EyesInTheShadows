@@ -37,7 +37,7 @@ public class Config {
         public static final String[] potionLookNames = {};
         public static final int potionLookDuration = 10;
         public static final int potionLookAmplifier = 0;
-        public static final Potion[] potionIgnoreDisappearNames = {Potion.blindness, Potion.invisibility};
+        public static final Potion[] potionIgnoreDisappearNames = { Potion.blindness, Potion.invisibility };
 
         /* eye aggression */
         public static final boolean enableEyeAggressionEscalation = true;
@@ -626,43 +626,22 @@ public class Config {
             0,
             Float.MAX_VALUE);
         spawnCycleSpawnWarningTime = (int) spawnCycleSpawnWarningTimeProperty.getDouble();
-        
-        Property waveMotionMinAmplitudeProperty = config.get(
-            Categories.misc,
-            "waveMotionMinAmplitude",
-            Defaults.waveMotionMinAmplitude,
-            "",
-            0,
-            Float.MAX_VALUE);
+
+        Property waveMotionMinAmplitudeProperty = config
+            .get(Categories.misc, "waveMotionMinAmplitude", Defaults.waveMotionMinAmplitude, "", 0, Float.MAX_VALUE);
         waveMotionMinAmplitude = (float) waveMotionMinAmplitudeProperty.getDouble();
 
-        Property waveMotionMaxAmplitudeProperty = config.get(
-            Categories.misc,
-            "waveMotionMaxAmplitude",
-            Defaults.waveMotionMaxAmplitude,
-            "",
-            0,
-            Float.MAX_VALUE);
+        Property waveMotionMaxAmplitudeProperty = config
+            .get(Categories.misc, "waveMotionMaxAmplitude", Defaults.waveMotionMaxAmplitude, "", 0, Float.MAX_VALUE);
         waveMotionMaxAmplitude = (float) waveMotionMaxAmplitudeProperty.getDouble();
 
-        Property waveMotionMinSpeedProperty = config.get(
-            Categories.misc,
-            "waveMotionMinSpeed",
-            Defaults.waveMotionMinSpeed,
-            "",
-            0,
-            Float.MAX_VALUE);
+        Property waveMotionMinSpeedProperty = config
+            .get(Categories.misc, "waveMotionMinSpeed", Defaults.waveMotionMinSpeed, "", 0, Float.MAX_VALUE);
         waveMotionMinSpeed = (float) waveMotionMinSpeedProperty.getDouble();
 
-        Property waveMotionMaxSpeedProperty = config.get(
-            Categories.misc,
-            "waveMotionMaxSpeed",
-            Defaults.waveMotionMaxSpeed,
-            "",
-            0,
-            Float.MAX_VALUE);
+        Property waveMotionMaxSpeedProperty = config
+            .get(Categories.misc, "waveMotionMaxSpeed", Defaults.waveMotionMaxSpeed, "", 0, Float.MAX_VALUE);
         waveMotionMaxSpeed = (float) waveMotionMaxSpeedProperty.getDouble();
-
 
         /* Mob interactions */
         Property eyesAttackTamedWolvesProperty = config.get(

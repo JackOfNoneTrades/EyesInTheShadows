@@ -22,8 +22,8 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
     private double attackRangeSq;
     private Class<? extends net.minecraft.entity.Entity> classTarget;
 
-
-    public FlyingAIAttackOnCollide(EntityFlying attacker, Class<? extends net.minecraft.entity.Entity> targetClass, double speed, boolean longMemory) {
+    public FlyingAIAttackOnCollide(EntityFlying attacker, Class<? extends net.minecraft.entity.Entity> targetClass,
+        double speed, boolean longMemory) {
         this.attacker = attacker;
         this.classTarget = targetClass;
         this.speedTowardsTarget = speed;
@@ -44,26 +44,21 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
         if (target == null) {
             return false;
         }
-        return this.attacker.getEntitySenses().canSee(this.target);
+        return this.attacker.getEntitySenses()
+            .canSee(this.target);
     }
 
     /**
      * Returns whether the EntityAIBase should begin execution.
      */
-    public boolean shouldExecute()
-    {
+    public boolean shouldExecute() {
         target = this.attacker.getAttackTarget();
 
-        if (target == null)
-        {
+        if (target == null) {
             return false;
-        }
-        else if (!target.isEntityAlive())
-        {
+        } else if (!target.isEntityAlive()) {
             return false;
-        }
-        else if (this.classTarget != null && !this.classTarget.isAssignableFrom(target.getClass()))
-        {
+        } else if (this.classTarget != null && !this.classTarget.isAssignableFrom(target.getClass())) {
             return false;
         }
         return canSeeTarget();
@@ -72,10 +67,8 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
     /**
      * Returns whether an in-progress EntityAIBase should continue executing
      */
-    public boolean continueExecuting()
-    {
-        return target != null && target.isEntityAlive() &&
-            (this.longMemory || this.canSeeTarget());
+    public boolean continueExecuting() {
+        return target != null && target.isEntityAlive() && (this.longMemory || this.canSeeTarget());
     }
 
     private void updateWaypoints() {
@@ -89,8 +82,7 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
     /**
      * Execute a one shot task or start executing a continuous task
      */
-    public void startExecuting()
-    {
+    public void startExecuting() {
         this.courseChangeCooldown = 0;
         this.updateWaypoints();
     }
@@ -98,8 +90,7 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
     /**
      * Resets the task
      */
-    public void resetTask()
-    {
+    public void resetTask() {
         this.target = null;
     }
 
@@ -111,18 +102,16 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
         if (target == null) return;
 
         // Look at target
-        this.attacker.getLookHelper().setLookPositionWithEntity(target, 30.0F, 30.0F);
+        this.attacker.getLookHelper()
+            .setLookPositionWithEntity(target, 30.0F, 30.0F);
 
         // Update waypoint to current target position
         if (this.courseChangeCooldown-- <= 0) {
-            this.courseChangeCooldown = 4 + this.attacker.getRNG().nextInt(7);
+            this.courseChangeCooldown = 4 + this.attacker.getRNG()
+                .nextInt(7);
 
             // Check distance to decide whether to recalculate waypoints
-            double distanceSq = this.attacker.getDistanceSq(
-                target.posX,
-                target.boundingBox.minY,
-                target.posZ
-            );
+            double distanceSq = this.attacker.getDistanceSq(target.posX, target.boundingBox.minY, target.posZ);
 
             if (distanceSq > 1024.0D) {
                 this.courseChangeCooldown += 10;
@@ -130,7 +119,8 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
                 this.courseChangeCooldown += 5;
             }
 
-            if (!this.canSeeTarget() && this.attacker.getRNG().nextFloat() < 0.05F) {
+            if (!this.canSeeTarget() && this.attacker.getRNG()
+                .nextFloat() < 0.05F) {
                 this.failedAttackPenalty += 10;
             } else {
                 this.failedAttackPenalty = 0;
@@ -153,9 +143,9 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
 
                 // Limit velocity to prevent overshooting
                 double maxVelocity = this.speedTowardsTarget / 5.0;
-                double velocitySq = this.attacker.motionX * this.attacker.motionX +
-                    this.attacker.motionY * this.attacker.motionY +
-                    this.attacker.motionZ * this.attacker.motionZ;
+                double velocitySq = this.attacker.motionX * this.attacker.motionX
+                    + this.attacker.motionY * this.attacker.motionY
+                    + this.attacker.motionZ * this.attacker.motionZ;
 
                 if (velocitySq > maxVelocity * maxVelocity) {
                     double velocityFactor = maxVelocity / Math.sqrt(velocitySq);
@@ -166,11 +156,7 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
             }
         }
         // Attack logic
-        double distanceToTargetSq = this.attacker.getDistanceSq(
-            target.posX,
-            target.boundingBox.minY,
-            target.posZ
-        );
+        double distanceToTargetSq = this.attacker.getDistanceSq(target.posX, target.boundingBox.minY, target.posZ);
 
         double attackRange = (this.attacker.width * 2.0F * this.attacker.width * 2.0F + target.width);
 
@@ -179,10 +165,6 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
         // If close enough to attack
         if (distanceToTargetSq <= attackRange && this.attackTick <= 0) {
             this.attackTick = 20;
-
-            if (this.attacker.getHeldItem() != null) {
-                this.attacker.swingItem();
-            }
 
             this.attacker.attackEntityAsMob(target);
         }

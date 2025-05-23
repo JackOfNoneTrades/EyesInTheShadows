@@ -35,6 +35,7 @@
  */
 dependencies {
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.4-GTNH:dev")
+    runtimeOnlyNonPublishable(rfg.deobf("curse.maven:skinport-234948:3212017"))
     api("maven.modrinth:carbon-config:ttXTOUmO")
     compileOnly('com.github.GTNewHorizons:Baubles-Expanded:2.1.6-GTNH:dev')
     compileOnlyApi('thaumcraft:Thaumcraft:1.7.10-4.2.3.5:dev') {transitive=false}

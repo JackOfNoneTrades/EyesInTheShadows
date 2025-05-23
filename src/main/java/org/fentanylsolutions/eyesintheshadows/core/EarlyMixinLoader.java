@@ -29,6 +29,7 @@ public class EarlyMixinLoader implements IEarlyMixinLoader, IFMLLoadingPlugin {
         mixins.add("minecraft.AccessorEntityAINearestAttackableTarget");
         mixins.add("minecraft.AccessorDimensionManager");
         mixins.add("minecraft.AccessorEntityAIAttackOnCollide");
+        mixins.add("minecraft.AccessorEntityLiving");
         return mixins;
     }
 

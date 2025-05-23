@@ -2,8 +2,6 @@ package org.fentanylsolutions.eyesintheshadows.entity.entities;
 
 import java.util.List;
 
-import javax.vecmath.Vector3d;
-
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityFlying;
@@ -31,7 +29,9 @@ import org.fentanylsolutions.eyesintheshadows.aitasks.FlyingAINearestAttackableT
 import org.fentanylsolutions.eyesintheshadows.aitasks.FlyingCreepTowardPlayer;
 import org.fentanylsolutions.eyesintheshadows.aitasks.FlyingEyesWander;
 import org.fentanylsolutions.eyesintheshadows.aitasks.FlyingTargetTamedWolves;
+import org.fentanylsolutions.eyesintheshadows.entity.EyeSenses;
 import org.fentanylsolutions.eyesintheshadows.entity.IModEntity;
+import org.fentanylsolutions.eyesintheshadows.mixins.early.minecraft.AccessorEntityLiving;
 import org.fentanylsolutions.eyesintheshadows.packet.PacketHandler;
 import org.fentanylsolutions.eyesintheshadows.packet.PacketUtil;
 import org.fentanylsolutions.eyesintheshadows.packet.packets.InitiateJumpscarePacket;
@@ -49,8 +49,11 @@ public class EntityEyes extends EntityFlying implements IModEntity {
     /** ticks until heightOffset is randomized */
     private int heightOffsetUpdateTime;
 
-    public final float waveAmplitude = Config.waveMotionMinAmplitude + EyesInTheShadows.varInstanceCommon.rand.nextFloat() * (Config.waveMotionMaxAmplitude - Config.waveMotionMinAmplitude);
-    public final float waveSpeed = Config.waveMotionMinSpeed + EyesInTheShadows.varInstanceCommon.rand.nextFloat() * (Config.waveMotionMaxSpeed - Config.waveMotionMinSpeed);
+    public final float waveAmplitude = Config.waveMotionMinAmplitude
+        + EyesInTheShadows.varInstanceCommon.rand.nextFloat()
+            * (Config.waveMotionMaxAmplitude - Config.waveMotionMinAmplitude);
+    public final float waveSpeed = Config.waveMotionMinSpeed
+        + EyesInTheShadows.varInstanceCommon.rand.nextFloat() * (Config.waveMotionMaxSpeed - Config.waveMotionMinSpeed);
 
     public EntityEyes(World world) {
         super(world);
@@ -65,6 +68,7 @@ public class EntityEyes extends EntityFlying implements IModEntity {
         }
         initSyncDataCompound();
         setupAI();
+        ((AccessorEntityLiving) this).setSenses(new EyeSenses(this));
     }
 
     @Override
@@ -83,38 +87,33 @@ public class EntityEyes extends EntityFlying implements IModEntity {
             return false;
         }
 
-        Vector3d selfPos = new Vector3d(this.posX, this.posY, this.posZ);
-        /*EntityLivingBase target = this.getAttackTarget();
-        if (target == null) {
-            return false;
-        }*/
-
         float maxWatchDistance = Config.watchDistance;
-        Vec3 eyePosEyes = getPosEyes(this);
+        Vec3 selfPos = getPosEyes(this);
+
         List<EntityPlayer> entities = worldObj.getEntitiesWithinAABB(
             EntityPlayer.class,
             AxisAlignedBB.getBoundingBox(
-                eyePosEyes.xCoord - maxWatchDistance,
-                eyePosEyes.yCoord - maxWatchDistance,
-                eyePosEyes.zCoord - maxWatchDistance,
-                eyePosEyes.xCoord + maxWatchDistance,
-                eyePosEyes.yCoord + maxWatchDistance,
-                eyePosEyes.zCoord + maxWatchDistance));
+                selfPos.xCoord - maxWatchDistance,
+                selfPos.yCoord - maxWatchDistance,
+                selfPos.zCoord - maxWatchDistance,
+                selfPos.xCoord + maxWatchDistance,
+                selfPos.yCoord + maxWatchDistance,
+                selfPos.zCoord + maxWatchDistance));
 
         for (EntityPlayer player : entities) {
             if (player.capabilities.isCreativeMode || player.isPotionActive(Potion.blindness)
-            || player.isPotionActive(Potion.invisibility)) {
+                || player.isPotionActive(Potion.invisibility)) {
                 continue;
             }
-            Vector3d playerPos = new Vector3d(player.posX, player.posY, player.posZ);
+            Vec3 playerPos = Vec3
+                .createVectorHelper(player.posX, player.boundingBox.minY + player.getEyeHeight(), player.posZ);
             Vec3 lookVec = player.getLookVec();
-            Vector3d playerLook = new Vector3d(lookVec.xCoord, lookVec.yCoord, lookVec.zCoord);
-            playerLook.normalize();
 
-            playerPos.sub(selfPos);
-            playerPos.normalize();
+            // TODO: normalization might not be necessary
+            Vec3 eyeLookVec = selfPos.subtract(playerPos)
+                .normalize();
 
-            if (playerLook.dot(playerPos) < 0) {
+            if (lookVec.dotProduct(eyeLookVec) < 0) {
                 return true;
             }
         }
@@ -168,7 +167,8 @@ public class EntityEyes extends EntityFlying implements IModEntity {
     @Override
     protected void applyEntityAttributes() {
         super.applyEntityAttributes();
-        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.attackDamage);
+        this.getAttributeMap()
+            .registerAttribute(SharedMonsterAttributes.attackDamage);
         getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.2D);
         getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(Config.health);
         getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(Config.eyeBaseAttackDamage);
@@ -216,9 +216,9 @@ public class EntityEyes extends EntityFlying implements IModEntity {
                 }
 
                 if (this.getAttackTarget() != null && this.getAttackTarget().posY + (double) this.getAttackTarget()
-                    .getEyeHeight() > this.posY + (double) this.getEyeHeight() /*+ (double) this.heightOffset*/
-                && this.moveForward > 0) {
-                    this.motionY += 0.1;//(0.30000001192092896D - this.motionY) * 0.30000001192092896D;
+                    .getEyeHeight() > this.posY + (double) this.getEyeHeight() /* + (double) this.heightOffset */
+                    && this.moveForward > 0) {
+                    this.motionY += 0.1;// (0.30000001192092896D - this.motionY) * 0.30000001192092896D;
                     this.moveFlying(0, (float) moveForward, 1);
                 }
             }
@@ -291,7 +291,8 @@ public class EntityEyes extends EntityFlying implements IModEntity {
                         .normalize();
                     float width = 0.25f;
                     float height = width * 5.f / 13f;
-                    Vec3 planeNormal = vec3.subtract(planePos).normalize();
+                    Vec3 planeNormal = vec3.subtract(planePos)
+                        .normalize();
                     double denom = planeNormal.dotProduct(vec3);
                     double approxHitDist = -1;
                     if (Math.abs(denom) > 1e-6) { // Make sure not parallel
@@ -305,30 +306,33 @@ public class EntityEyes extends EntityFlying implements IModEntity {
                         // Transform hitPoint into local 2D coordinates relative to plane center and axes
                         // For example, use right and up vectors of the plane:
 
-                        //Vec3 right = ...; // e.g., a vector along the width
-                        //Vec3 up = ...; // a vector along the height
+                        // Vec3 right = ...; // e.g., a vector along the width
+                        // Vec3 up = ...; // a vector along the height
 
-                        //Vec3 local = hitPoint.subtract(planePos);
-                        //double xDist = local.dotProduct(right);
-                        //double yDist = local.dotProduct(up);
+                        // Vec3 local = hitPoint.subtract(planePos);
+                        // double xDist = local.dotProduct(right);
+                        // double yDist = local.dotProduct(up);
 
-                        //if (Math.abs(xDist) <= width / 2 && Math.abs(yDist) <= height / 2) {
-                            // ✅ Hit is inside the bounds of the plane
-                        //}
+                        // if (Math.abs(xDist) <= width / 2 && Math.abs(yDist) <= height / 2) {
+                        // ✅ Hit is inside the bounds of the plane
+                        // }
                         approxHitDist = hitPoint.distanceTo(planePos);
                     }
 
                     // Old code
-                    /*Vec3 vec31 = Vec3.createVectorHelper(
-                        this.posX - player.posX,
-                        (this.posY  + getEyeHeight())
-                            - (player.posY + (double) player.getEyeHeight()),
-                        this.posZ - player.posZ);
-                    double d0 = vec31.lengthVector();
-                    vec31 = vec31.normalize();
-                    double d1 = vec3.dotProduct(vec31);
-                    shouldDisappear = d1 > 1.0D - 0.025D / d0 && player.canEntityBeSeen(this);*/
-                    shouldDisappear = approxHitDist <= width && TraceUtil.canEntityBeSeenIgnoreWithoutBoundingBox(player, this);
+                    /*
+                     * Vec3 vec31 = Vec3.createVectorHelper(
+                     * this.posX - player.posX,
+                     * (this.posY + getEyeHeight())
+                     * - (player.posY + (double) player.getEyeHeight()),
+                     * this.posZ - player.posZ);
+                     * double d0 = vec31.lengthVector();
+                     * vec31 = vec31.normalize();
+                     * double d1 = vec3.dotProduct(vec31);
+                     * shouldDisappear = d1 > 1.0D - 0.025D / d0 && player.canEntityBeSeen(this);
+                     */
+                    shouldDisappear = approxHitDist <= width
+                        && TraceUtil.canEntityBeSeenIgnoreWithoutBoundingBox(player, this);
 
                     if (shouldDisappear) {
                         disappear(true);
@@ -417,52 +421,52 @@ public class EntityEyes extends EntityFlying implements IModEntity {
             disappear(false);
         }
 
-        /*if (this.attackTime == 0) {
-            this.attackTime = Config.tickBetweenAttacks;
-            super.attackEntityAsMob(attackedEntity);
+        /*
+         * if (this.attackTime == 0) {
+         * this.attackTime = Config.tickBetweenAttacks;
+         * super.attackEntityAsMob(attackedEntity);
+         * // jabelar says this is correct :shrug:
+         * this.setLastAttacker(attackedEntity);
+         * }
+         * // stub return
+         * return false;
+         */
 
-            // jabelar says this is correct :shrug:
-            this.setLastAttacker(attackedEntity);
-        }
-
-        // stub return
-        return false;*/
-
-        float f = (float)this.getEntityAttribute(SharedMonsterAttributes.attackDamage).getAttributeValue();
+        float f = (float) this.getEntityAttribute(SharedMonsterAttributes.attackDamage)
+            .getAttributeValue();
         int i = 0;
 
-        if (attackedEntity instanceof EntityLivingBase)
-        {
-            f += EnchantmentHelper.getEnchantmentModifierLiving(this, (EntityLivingBase)attackedEntity);
-            i += EnchantmentHelper.getKnockbackModifier(this, (EntityLivingBase)attackedEntity);
+        if (attackedEntity instanceof EntityLivingBase) {
+            f += EnchantmentHelper.getEnchantmentModifierLiving(this, (EntityLivingBase) attackedEntity);
+            i += EnchantmentHelper.getKnockbackModifier(this, (EntityLivingBase) attackedEntity);
         }
 
         boolean flag = attackedEntity.attackEntityFrom(DamageSource.causeMobDamage(this), f);
 
-        if (flag)
-        {
-            if (i > 0)
-            {
-                attackedEntity.addVelocity((double)(-MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F), 0.1D, (double)(MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F));
+        if (flag) {
+            if (i > 0) {
+                attackedEntity.addVelocity(
+                    (double) (-MathHelper.sin(this.rotationYaw * (float) Math.PI / 180.0F) * (float) i * 0.5F),
+                    0.1D,
+                    (double) (MathHelper.cos(this.rotationYaw * (float) Math.PI / 180.0F) * (float) i * 0.5F));
                 this.motionX *= 0.6D;
                 this.motionZ *= 0.6D;
             }
 
             int j = EnchantmentHelper.getFireAspectModifier(this);
 
-            if (j > 0)
-            {
+            if (j > 0) {
                 attackedEntity.setFire(j * 4);
             }
 
-            if (attackedEntity instanceof EntityLivingBase)
-            {
-                EnchantmentHelper.func_151384_a((EntityLivingBase)attackedEntity, this);
+            if (attackedEntity instanceof EntityLivingBase) {
+                EnchantmentHelper.func_151384_a((EntityLivingBase) attackedEntity, this);
             }
 
             EnchantmentHelper.func_151385_b(this, attackedEntity);
         }
 
+        disappear(true);
         return flag;
     }
 
@@ -555,14 +559,39 @@ public class EntityEyes extends EntityFlying implements IModEntity {
     @Override
     public void initSyncDataCompound() {
         syncDataCompound.setFloat("scaleFactor", 1F);
+        syncDataCompound.setBoolean("hasTarget", false);
+        syncDataCompound.setDouble("targetX", 0);
+        syncDataCompound.setDouble("targetY", 0);
+        syncDataCompound.setDouble("targetZ", 0);
+    }
+
+    public Vec3 getTargetPosition() {
+        if (syncDataCompound.getBoolean("hasTarget")) {
+            return Vec3.createVectorHelper(
+                syncDataCompound.getDouble("targetX"),
+                syncDataCompound.getDouble("targetY"),
+                syncDataCompound.getDouble("targetZ"));
+        }
+        return null;
     }
 
     public double getSpeedFromAggro() {
         if (Util.getEyeRenderingAlpha(this, Config.eyesCanAttackWhileLit) <= 0) {
             return 0;
         }
-        return Config.speedNoAggro + (Config.speedFullAggro - Config.speedNoAggro) * getAggroLevel();
-        // return Util.clampedLerp(getAggroLevel(), Config.speedNoAggro, Config.speedFullAggro);
+        // return Config.speedNoAggro + (Config.speedFullAggro - Config.speedNoAggro) * getAggroLevel();
+        return Util.clampedLerp(getAggroLevel(), Config.speedNoAggro, Config.speedFullAggro);
+    }
+
+    @Override
+    public void setAttackTarget(EntityLivingBase entity) {
+        super.setAttackTarget(entity);
+        syncDataCompound.setBoolean("hasTarget", entity != null);
+        if (entity != null) {
+            syncDataCompound.setDouble("targetX", entity.posX);
+            syncDataCompound.setDouble("targetY", entity.boundingBox.minY + entity.getEyeHeight());
+            syncDataCompound.setDouble("targetZ", entity.posZ);
+        }
     }
 
     @Override
@@ -572,6 +601,9 @@ public class EntityEyes extends EntityFlying implements IModEntity {
 
     @Override
     protected String getLivingSound() {
+        if (syncDataCompound.getBoolean("hasTarget") && !isPlayerLookingInMyGeneralDirection()) {
+            return null;
+        }
         return EyesInTheShadows.varInstanceCommon.laughSound;
     }
 
@@ -581,7 +613,7 @@ public class EntityEyes extends EntityFlying implements IModEntity {
 
     @Override
     protected void collideWithEntity(Entity entityIn) {
-        if (entityIn instanceof EntityPlayer && !((EntityPlayer)entityIn).capabilities.isCreativeMode) {
+        if (entityIn instanceof EntityPlayer && !((EntityPlayer) entityIn).capabilities.isCreativeMode) {
             disappear(true);
             if (Config.potionCollisionNames.length > 0) {
                 String name = Config.potionCollisionNames[EyesInTheShadows.varInstanceCommon.rand
@@ -629,12 +661,20 @@ public class EntityEyes extends EntityFlying implements IModEntity {
 
     @Override
     protected void onDeathUpdate() {
-        /*
-         * This makes the death particles spawn instantly, which is more fitting than
-         * the standard delay.
-         */
-        this.deathTime = 19;
-        super.onDeathUpdate();
+        this.setDead();
+        for (int i = 0; i < 5; ++i) {
+            double d2 = this.rand.nextGaussian() * 0.01D;
+            double d0 = this.rand.nextGaussian() * 0.01D;
+            double d1 = this.rand.nextGaussian() * 0.01D;
+            this.worldObj.spawnParticle(
+                "explode",
+                this.posX + (double) (this.rand.nextFloat() * this.width / 2) - (double) this.width / 2,
+                this.posY + (double) (this.rand.nextFloat() * this.height / 2),
+                this.posZ + (double) (this.rand.nextFloat() * this.width / 2) - (double) this.width / 2,
+                d2,
+                d0,
+                d1);
+        }
     }
 
     /* The whole gimmick is that it should be a ghost-like entity, duh. */
@@ -661,16 +701,15 @@ public class EntityEyes extends EntityFlying implements IModEntity {
     @Override
     public void collideWithNearbyEntities() {
         /* We need to add 0.2 to Y otherwise we can stand on the mob without triggering a collision */
-        List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.expand(0.20000000298023224D, 0.2D, 0.20000000298023224D));
+        List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(
+            this,
+            this.boundingBox.expand(0.20000000298023224D, 0.2D, 0.20000000298023224D));
 
-        if (list != null && !list.isEmpty())
-        {
-            for (int i = 0; i < list.size(); ++i)
-            {
-                Entity entity = (Entity)list.get(i);
+        if (list != null && !list.isEmpty()) {
+            for (int i = 0; i < list.size(); ++i) {
+                Entity entity = (Entity) list.get(i);
 
-                if (entity.canBePushed())
-                {
+                if (entity.canBePushed()) {
                     this.collideWithEntity(entity);
                 }
             }

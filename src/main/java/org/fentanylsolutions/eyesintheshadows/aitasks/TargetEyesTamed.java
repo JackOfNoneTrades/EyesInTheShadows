@@ -4,7 +4,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityTameable;
 
 import org.fentanylsolutions.eyesintheshadows.Config;
-import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 import org.fentanylsolutions.eyesintheshadows.entity.entities.EntityEyes;
 import org.fentanylsolutions.eyesintheshadows.mixins.early.minecraft.AccessorEntityAINearestAttackableTarget;
 
@@ -22,7 +21,7 @@ public class TargetEyesTamed extends EntityAITargetTamed {
 
         /* super.shouldExecute() must be called at the beginning because it sets the target entity field */
         boolean superShouldExecute = super.shouldExecute();
-        EntityLivingBase entityLivingBase = ((AccessorEntityAINearestAttackableTarget)this).getTargetEntity();
+        EntityLivingBase entityLivingBase = ((AccessorEntityAINearestAttackableTarget) this).getTargetEntity();
         if (!(entityLivingBase instanceof EntityEyes)) {
             return false;
         }

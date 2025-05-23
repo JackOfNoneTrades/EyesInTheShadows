@@ -9,8 +9,8 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraft.util.Vec3;
+
 import org.fentanylsolutions.eyesintheshadows.Config;
 import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 import org.fentanylsolutions.eyesintheshadows.entity.entities.EntityEyes;
@@ -36,10 +36,10 @@ public class ModelEyes extends ModelBase {
     protected static final double CYCLES_PER_BLOCK = 3.0D;
 
     public ModelEyes() {
-        //head = new ModelRenderer(this, 120, 420);
+        // head = new ModelRenderer(this, 120, 420);
         head = new ModelRenderer(this, 0, 0);
-        //head.addBox(-32F, -32F, 0F, 32, 32, 0);
-        //head.addBox(100F, 100F, 100F, 100, 132, 100);
+        // head.addBox(-32F, -32F, 0F, 32, 32, 0);
+        // head.addBox(100F, 100F, 100F, 100, 132, 100);
         // head.setRotationPoint(16F, 22F, 0F);
         head.setRotationPoint(0F, 0F, 0F);
         head.setTextureSize(textureWidth, textureHeight);
@@ -53,12 +53,12 @@ public class ModelEyes extends ModelBase {
     public void render(Entity parEntity, float parTime, float parSwingSuppress, float par4, float parHeadAngleY,
         float parHeadAngleX, float par7) {
 
-        // related to animation
         renderEyes((EntityEyes) parEntity, parTime, parSwingSuppress, par4, parHeadAngleY, parHeadAngleX, par7);
         super.render(parEntity, parTime, parSwingSuppress, par4, parHeadAngleY, parHeadAngleX, par7);
     }
 
     float time = 0;
+
     public void renderEyes(EntityEyes parEntity, float parTime, float parSwingSuppress, float par4, float parHeadAngleY,
         float parHeadAngleX, float par7) {
         if (!parEntity.isEntityAlive()) {
@@ -137,25 +137,35 @@ public class ModelEyes extends ModelBase {
 
         GL11.glScalef(Config.scaleFactor, Config.scaleFactor, Config.scaleFactor);
 
-
-        /*float viewerYaw = RenderManager.instance.playerViewY;
-        float viewerPitch = RenderManager.instance.playerViewX;
-        GL11.glRotatef(viewerYaw - parEntity.renderYawOffset, 0, 1, 0);
-        GL11.glRotatef(viewerPitch, 1, 0, 0);*/
+        /*
+         * float viewerYaw = RenderManager.instance.playerViewY;
+         * float viewerPitch = RenderManager.instance.playerViewX;
+         * GL11.glRotatef(viewerYaw - parEntity.renderYawOffset, 0, 1, 0);
+         * GL11.glRotatef(viewerPitch, 1, 0, 0);
+         */
 
         // The eyes always look towards north (or south, doesn't matter)
         // Vec3 eyeLookVec = Vec3.createVectorHelper(0, 0, -1);
-        Vec3 eyeEyePos = Vec3.createVectorHelper(parEntity.posX, parEntity.posY + parEntity.getEyeHeight(), parEntity.posZ);
-        Vec3 playerEyePos = Vec3.createVectorHelper(RenderManager.instance.livingPlayer.posX, RenderManager.instance.livingPlayer.posY + RenderManager.instance.livingPlayer.getEyeHeight(), RenderManager.instance.livingPlayer.posZ);
 
-        Vec3 eyesToPlayer = playerEyePos.subtract(eyeEyePos).normalize();
+        Vec3 eyeEyePos = Vec3
+            .createVectorHelper(parEntity.posX, parEntity.posY + parEntity.getEyeHeight(), parEntity.posZ);
+        Vec3 playerEyePos = parEntity.getTargetPosition();
+        if (playerEyePos == null) {
+            playerEyePos = Vec3.createVectorHelper(
+                RenderManager.instance.livingPlayer.posX,
+                RenderManager.instance.livingPlayer.boundingBox.minY
+                    + RenderManager.instance.livingPlayer.getEyeHeight(),
+                RenderManager.instance.livingPlayer.posZ);
+        }
+
+        Vec3 eyesToPlayer = playerEyePos.subtract(eyeEyePos)
+            .normalize();
 
         float yaw = (float) (Math.atan2(eyesToPlayer.xCoord, eyesToPlayer.zCoord) * (180F / Math.PI));
         float pitch = (float) (-Math.asin(eyesToPlayer.yCoord) * (180F / Math.PI));
 
-        GL11.glRotatef(yaw, 0.0F, -1.0F, 0.0F);   // Rotate around Y (yaw)
+        GL11.glRotatef(yaw, 0.0F, -1.0F, 0.0F); // Rotate around Y (yaw)
         GL11.glRotatef(pitch, -1.0F, 0.0F, 0.0F); // Rotate around X (pitch)
-
 
         /* There is some other render code elsewhere that flips the entity for some reason */
         GL11.glRotatef(180F, 1, 0, 0);

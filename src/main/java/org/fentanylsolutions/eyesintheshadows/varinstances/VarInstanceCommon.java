@@ -1,13 +1,11 @@
 package org.fentanylsolutions.eyesintheshadows.varinstances;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 
 import net.minecraft.potion.Potion;
 import net.minecraft.world.WorldProvider;
-import net.minecraftforge.common.DimensionManager;
 
 import org.fentanylsolutions.eyesintheshadows.Config;
 import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
@@ -38,8 +36,7 @@ public class VarInstanceCommon {
     public boolean witcheryLoaded;
     public int daysUntilHalloween = TimeUtil.getDaysUntilNextHalloween();
 
-    public VarInstanceCommon() {
-    }
+    public VarInstanceCommon() {}
 
     public void postInitHook() {
         witcheryLoaded = Loader.isModLoaded("witchery");

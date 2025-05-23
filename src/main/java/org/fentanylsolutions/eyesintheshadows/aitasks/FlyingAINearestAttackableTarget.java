@@ -13,6 +13,7 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.potion.Potion;
+
 import org.apache.commons.lang3.StringUtils;
 import org.fentanylsolutions.eyesintheshadows.Config;
 import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
@@ -21,6 +22,7 @@ import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
  * Modified version of EntityAINearestAttackableTarget that works with EntityEyes (which extends EntityFlying)
  */
 public class FlyingAINearestAttackableTarget extends EntityAIBase {
+
     private final EntityFlying taskOwner;
     private final Class targetClass;
     private final int targetChance;
@@ -35,16 +37,18 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
     private int targetSearchDelay;
     private int timeHaventSeenTarget;
 
-    public FlyingAINearestAttackableTarget(EntityFlying entity, Class<? extends Entity> targetClass, int targetChance, boolean shouldCheckSight) {
+    public FlyingAINearestAttackableTarget(EntityFlying entity, Class<? extends Entity> targetClass, int targetChance,
+        boolean shouldCheckSight) {
         this(entity, targetClass, targetChance, shouldCheckSight, false);
     }
 
-    public FlyingAINearestAttackableTarget(EntityFlying entity, Class<? extends Entity> targetClass, int targetChance, boolean shouldCheckSight, boolean nearbyOnly) {
+    public FlyingAINearestAttackableTarget(EntityFlying entity, Class<? extends Entity> targetClass, int targetChance,
+        boolean shouldCheckSight, boolean nearbyOnly) {
         this(entity, targetClass, targetChance, shouldCheckSight, nearbyOnly, null);
     }
 
     public FlyingAINearestAttackableTarget(EntityFlying entity, Class<? extends Entity> targetClass, int targetChance,
-                                           boolean shouldCheckSight, boolean nearbyOnly, final IEntitySelector selector) {
+        boolean shouldCheckSight, boolean nearbyOnly, final IEntitySelector selector) {
         super();
         this.taskOwner = entity;
         this.targetClass = targetClass;
@@ -56,6 +60,7 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
 
         // Create an entity selector that combines the provided selector with our own suitable target check
         this.targetEntitySelector = new IEntitySelector() {
+
             @Override
             public boolean isEntityApplicable(Entity entity) {
                 if (!(entity instanceof EntityLivingBase)) {
@@ -66,7 +71,7 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
                     return false;
                 }
 
-                return isSuitableTarget((EntityLivingBase)entity, false);
+                return isSuitableTarget((EntityLivingBase) entity, false);
             }
         };
     }
@@ -80,7 +85,8 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
      */
     @Override
     public boolean shouldExecute() {
-        if (this.targetChance > 0 && this.taskOwner.getRNG().nextInt(this.targetChance) != 0) {
+        if (this.targetChance > 0 && this.taskOwner.getRNG()
+            .nextInt(this.targetChance) != 0) {
             return false;
         }
 
@@ -88,8 +94,7 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
         List list = this.taskOwner.worldObj.selectEntitiesWithinAABB(
             this.targetClass,
             this.taskOwner.boundingBox.expand(targetDistance, targetDistance, targetDistance),
-            this.targetEntitySelector
-        );
+            this.targetEntitySelector);
 
         if (list.isEmpty()) {
             return false;
@@ -97,7 +102,7 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
             if (list.size() > 1) {
                 Collections.sort(list, this.theNearestAttackableTargetSorter);
             }
-            this.targetEntity = (EntityLivingBase)list.get(0);
+            this.targetEntity = (EntityLivingBase) list.get(0);
             return true;
         }
     }
@@ -119,14 +124,16 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
                 return false;
             } else {
                 if (this.shouldCheckSight) {
-                    if (this.taskOwner.getEntitySenses().canSee(target)) {
+                    if (this.taskOwner.getEntitySenses()
+                        .canSee(target)) {
                         this.timeHaventSeenTarget = 0;
                     } else if (++this.timeHaventSeenTarget > 60) {
                         return false;
                     }
                 }
 
-                return !(target instanceof EntityPlayerMP) || !((EntityPlayerMP)target).theItemInWorldManager.isCreative();
+                return !(target instanceof EntityPlayerMP)
+                    || !((EntityPlayerMP) target).theItemInWorldManager.isCreative();
             }
         }
     }
@@ -174,22 +181,26 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
         // Note: Need to implement canAttackClass in EntityEyes or rely on other means
 
         // Check if the target is an owner
-        if (this.taskOwner instanceof IEntityOwnable && StringUtils.isNotEmpty(((IEntityOwnable)this.taskOwner).func_152113_b())) {
-            if (target instanceof IEntityOwnable && ((IEntityOwnable)this.taskOwner).func_152113_b().equals(((IEntityOwnable)target).func_152113_b())) {
+        if (this.taskOwner instanceof IEntityOwnable
+            && StringUtils.isNotEmpty(((IEntityOwnable) this.taskOwner).func_152113_b())) {
+            if (target instanceof IEntityOwnable && ((IEntityOwnable) this.taskOwner).func_152113_b()
+                .equals(((IEntityOwnable) target).func_152113_b())) {
                 return false;
             }
 
-            if (target == ((IEntityOwnable)this.taskOwner).getOwner()) {
+            if (target == ((IEntityOwnable) this.taskOwner).getOwner()) {
                 return false;
             }
-        } else if (target instanceof EntityPlayer && !includeInvulnerables && ((EntityPlayer)target).capabilities.disableDamage) {
-            return false;
-        }
+        } else if (target instanceof EntityPlayer && !includeInvulnerables
+            && ((EntityPlayer) target).capabilities.disableDamage) {
+                return false;
+            }
 
         // Check if target is within the eyes home distance
         // Note: For EntityEyes we can skip this check since they're ghost-like entities
 
-        if (this.shouldCheckSight && !this.taskOwner.getEntitySenses().canSee(target)) {
+        if (this.shouldCheckSight && !this.taskOwner.getEntitySenses()
+            .canSee(target)) {
             return false;
         }
 
@@ -203,6 +214,7 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
      * Sorter for finding the nearest entity
      */
     public static class TargetSorter implements Comparator<Entity> {
+
         private final Entity theEntity;
 
         public TargetSorter(Entity entity) {
