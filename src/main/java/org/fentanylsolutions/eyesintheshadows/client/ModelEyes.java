@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
@@ -159,7 +158,8 @@ public class ModelEyes extends ModelBase {
                     + RenderManager.instance.livingPlayer.getEyeHeight(),
                 RenderManager.instance.livingPlayer.posZ);
         } else {
-            playerEyePos = Vec3.createVectorHelper(target.posX, target.boundingBox.minY + target.getEyeHeight(), target.posZ);
+            playerEyePos = Vec3
+                .createVectorHelper(target.posX, target.boundingBox.minY + target.getEyeHeight(), target.posZ);
         }
 
         Vec3 eyesToPlayer = playerEyePos.subtract(eyeEyePos)
