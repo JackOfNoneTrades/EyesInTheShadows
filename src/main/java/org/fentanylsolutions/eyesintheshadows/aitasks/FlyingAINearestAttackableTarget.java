@@ -30,7 +30,6 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
     private final IEntitySelector targetEntitySelector;
     private EntityLivingBase targetEntity;
 
-    // Targeting settings from EntityAITarget
     protected boolean shouldCheckSight;
     private boolean nearbyOnly;
     private int targetSearchStatus;
@@ -58,7 +57,6 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
         this.theNearestAttackableTargetSorter = new TargetSorter(entity);
         this.setMutexBits(1);
 
-        // Create an entity selector that combines the provided selector with our own suitable target check
         this.targetEntitySelector = new IEntitySelector() {
 
             @Override
@@ -80,9 +78,6 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
         return targetEntity;
     }
 
-    /**
-     * Returns whether the EntityAIBase should begin execution.
-     */
     @Override
     public boolean shouldExecute() {
         if (this.targetChance > 0 && this.taskOwner.getRNG()
@@ -107,9 +102,6 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
         }
     }
 
-    /**
-     * Returns whether an in-progress EntityAIBase should continue executing
-     */
     @Override
     public boolean continueExecuting() {
         EntityLivingBase target = this.taskOwner.getAttackTarget();
@@ -142,9 +134,6 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
         return Config.watchDistance;
     }
 
-    /**
-     * Execute a one shot task or start executing a continuous task
-     */
     @Override
     public void startExecuting() {
         this.taskOwner.setAttackTarget(this.targetEntity);
@@ -154,18 +143,12 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
         this.timeHaventSeenTarget = 0;
     }
 
-    /**
-     * Resets the task
-     */
     @Override
     public void resetTask() {
         this.taskOwner.setAttackTarget(null);
         EyesInTheShadows.LOG.info("Reset eye target");
     }
 
-    /**
-     * Checks if the target is suitable for the entity
-     */
     protected boolean isSuitableTarget(EntityLivingBase target, boolean includeInvulnerables) {
         if (target == null) {
             return false;
@@ -177,10 +160,6 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
             return false;
         }
 
-        // Can't target what the entity isn't allowed to attack
-        // Note: Need to implement canAttackClass in EntityEyes or rely on other means
-
-        // Check if the target is an owner
         if (this.taskOwner instanceof IEntityOwnable
             && StringUtils.isNotEmpty(((IEntityOwnable) this.taskOwner).func_152113_b())) {
             if (target instanceof IEntityOwnable && ((IEntityOwnable) this.taskOwner).func_152113_b()
@@ -196,23 +175,14 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
                 return false;
             }
 
-        // Check if target is within the eyes home distance
-        // Note: For EntityEyes we can skip this check since they're ghost-like entities
-
         if (this.shouldCheckSight && !this.taskOwner.getEntitySenses()
             .canSee(target)) {
             return false;
         }
 
-        // For flying entities, we'll skip the nearbyOnly check that uses path-based accessibility
-        // This simplifies targeting for flying entities that don't use standard pathing
-
         return true;
     }
 
-    /**
-     * Sorter for finding the nearest entity
-     */
     public static class TargetSorter implements Comparator<Entity> {
 
         private final Entity theEntity;

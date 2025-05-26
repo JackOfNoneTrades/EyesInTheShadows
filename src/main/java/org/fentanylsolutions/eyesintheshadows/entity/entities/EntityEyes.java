@@ -559,13 +559,14 @@ public class EntityEyes extends EntityFlying implements IModEntity {
     @Override
     public void initSyncDataCompound() {
         syncDataCompound.setFloat("scaleFactor", 1F);
-        syncDataCompound.setBoolean("hasTarget", false);
-        syncDataCompound.setDouble("targetX", 0);
-        syncDataCompound.setDouble("targetY", 0);
-        syncDataCompound.setDouble("targetZ", 0);
+        syncDataCompound.setInteger("targetId", -1);
+        //syncDataCompound.setBoolean("hasTarget", false);
+        //syncDataCompound.setDouble("targetX", 0);
+        //syncDataCompound.setDouble("targetY", 0);
+        //syncDataCompound.setDouble("targetZ", 0);
     }
 
-    public Vec3 getTargetPosition() {
+    /*public Vec3 getTargetPosition() {
         if (syncDataCompound.getBoolean("hasTarget")) {
             return Vec3.createVectorHelper(
                 syncDataCompound.getDouble("targetX"),
@@ -573,6 +574,10 @@ public class EntityEyes extends EntityFlying implements IModEntity {
                 syncDataCompound.getDouble("targetZ"));
         }
         return null;
+    }*/
+
+    public int getTargetId() {
+        return syncDataCompound.getInteger("targetId");
     }
 
     public double getSpeedFromAggro() {
@@ -586,12 +591,17 @@ public class EntityEyes extends EntityFlying implements IModEntity {
     @Override
     public void setAttackTarget(EntityLivingBase entity) {
         super.setAttackTarget(entity);
-        syncDataCompound.setBoolean("hasTarget", entity != null);
+        if (entity == null) {
+            syncDataCompound.setInteger("targetId", -1);
+        } else {
+            syncDataCompound.setInteger("targetId", entity.getEntityId());
+        }
+        /*syncDataCompound.setBoolean("hasTarget", entity != null);
         if (entity != null) {
             syncDataCompound.setDouble("targetX", entity.posX);
             syncDataCompound.setDouble("targetY", entity.boundingBox.minY + entity.getEyeHeight());
             syncDataCompound.setDouble("targetZ", entity.posZ);
-        }
+        }*/
     }
 
     @Override

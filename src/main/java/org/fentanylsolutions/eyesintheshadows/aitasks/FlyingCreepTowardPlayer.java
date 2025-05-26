@@ -193,7 +193,7 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
 
             // Normalize direction vector and apply speed
             if (distance > 0.5) {
-                double speedFactor = speed; /// 10.0; // Adjust for smoother movement
+                double speedFactor = speed;
                 this.eyes.motionX += (dx / distance) * speedFactor;
                 this.eyes.motionY += (dy / distance) * speedFactor;
                 this.eyes.motionZ += (dz / distance) * speedFactor;
