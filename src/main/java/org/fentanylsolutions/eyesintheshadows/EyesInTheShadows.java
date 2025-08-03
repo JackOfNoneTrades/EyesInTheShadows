@@ -15,7 +15,12 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = EyesInTheShadows.MODID, version = Tags.VERSION, name = "MyMod", acceptedMinecraftVersions = "[1.7.10]")
+@Mod(
+    modid = EyesInTheShadows.MODID,
+    version = Tags.VERSION,
+    name = "Eyes in the Shadows",
+    acceptedMinecraftVersions = "[1.7.10]",
+    guiFactory = "org.fentanylsolutions." + EyesInTheShadows.MODID + ".gui.GuiFactory")
 public class EyesInTheShadows {
 
     public static final String MODID = "eyesintheshadows";
@@ -37,6 +42,7 @@ public class EyesInTheShadows {
         serverSide = "org.fentanylsolutions.eyesintheshadows.CommonProxy")
     public static CommonProxy proxy;
 
+    @SuppressWarnings("unused")
     @Mod.EventHandler
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
     // GameRegistry." (Remove if not needed)
@@ -47,18 +53,21 @@ public class EyesInTheShadows {
         proxy.preInit(event);
     }
 
+    @SuppressWarnings("unused")
     @Mod.EventHandler
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
     }
 
+    @SuppressWarnings("unused")
     @Mod.EventHandler
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
     }
 
+    @SuppressWarnings("unused")
     @Mod.EventHandler
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {
@@ -74,4 +83,16 @@ public class EyesInTheShadows {
             LOG.info("DEBUG: " + message);
         }
     }
+
+    // TODO: Make the Eyes behave like Shades in Brandon Sanderson's Threnody
+    /*
+     * Make a super deadly variant appear if the player does one of the following and is not warded by silver
+     * - Bloodshed/killing
+     * - Lighting a fire
+     * - Sprinting
+     * Other points
+     * - Enraged shades become black and have green eyes, enraged by bloodshed crimson eyes
+     * - Shades cannot move through aluminum
+     * - They repeat memories
+     */
 }

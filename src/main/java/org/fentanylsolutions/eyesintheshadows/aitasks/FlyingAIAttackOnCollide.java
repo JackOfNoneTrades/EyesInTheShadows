@@ -158,7 +158,7 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
         // Attack logic
         double distanceToTargetSq = this.attacker.getDistanceSq(target.posX, target.boundingBox.minY, target.posZ);
 
-        double attackRange = (this.attacker.width * 2.0F * this.attacker.width * 2.0F + target.width);
+        double attackRange = (this.attacker.width * 2.0F * this.attacker.width * 2.0F + target.width) * 2;
 
         this.attackTick = Math.max(this.attackTick - 1, 0);
 

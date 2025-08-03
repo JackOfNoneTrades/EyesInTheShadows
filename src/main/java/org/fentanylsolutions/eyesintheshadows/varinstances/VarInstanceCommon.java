@@ -12,7 +12,6 @@ import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 import org.fentanylsolutions.eyesintheshadows.mixins.early.minecraft.AccessorDimensionManager;
 import org.fentanylsolutions.eyesintheshadows.util.DimensionUtil;
 import org.fentanylsolutions.eyesintheshadows.util.MobUtil;
-import org.fentanylsolutions.eyesintheshadows.util.PotionUtil;
 import org.fentanylsolutions.eyesintheshadows.util.TimeUtil;
 import org.fentanylsolutions.eyesintheshadows.util.XSTR;
 
@@ -52,31 +51,16 @@ public class VarInstanceCommon {
 
     public void buildPotionList() {
         potionList = new HashMap<>();
-        for (String s : Config.potionNames) {
-            Potion p = PotionUtil.getPotionByName(s);
-            if (p == null) {
-                EyesInTheShadows.LOG.error("Failed to get potion for name " + s);
-            } else {
-                potionList.put(p.getName(), p);
-            }
+        for (Potion p : Config.potionNames) {
+            potionList.put(p.getName(), p);
         }
         potionCollisionList = new HashMap<>();
-        for (String s : Config.potionCollisionNames) {
-            Potion p = PotionUtil.getPotionByName(s);
-            if (p == null) {
-                EyesInTheShadows.LOG.error("Failed to get potion for name " + s);
-            } else {
-                potionCollisionList.put(p.getName(), p);
-            }
+        for (Potion p : Config.potionCollisionNames) {
+            potionCollisionList.put(p.getName(), p);
         }
         potionLookList = new HashMap<>();
-        for (String s : Config.potionLookNames) {
-            Potion p = PotionUtil.getPotionByName(s);
-            if (p == null) {
-                EyesInTheShadows.LOG.error("Failed to get potion for name " + s);
-            } else {
-                potionLookList.put(p.getName(), p);
-            }
+        for (Potion p : Config.potionLookNames) {
+            potionLookList.put(p.getName(), p);
         }
     }
 

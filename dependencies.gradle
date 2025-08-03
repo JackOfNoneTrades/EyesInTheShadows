@@ -36,8 +36,11 @@
 dependencies {
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.4-GTNH:dev")
     runtimeOnlyNonPublishable(rfg.deobf("curse.maven:skinport-234948:3212017"))
-    api("maven.modrinth:carbon-config:ttXTOUmO")
+    // api("maven.modrinth:carbon-config:ttXTOUmO")
     compileOnly('com.github.GTNewHorizons:Baubles-Expanded:2.1.6-GTNH:dev')
     compileOnlyApi('thaumcraft:Thaumcraft:1.7.10-4.2.3.5:dev') {transitive=false}
     compileOnly('com.github.GTNewHorizons:ForbiddenMagic:0.8.0-GTNH:dev') {exclude module: "Baubles" }
+
+    /* Fixes the mod menu being broken ingame, allows for quick config testing */
+    runtimeOnlyNonPublishable(rfg.deobf("curse.maven:endercore-231868:4671288"))
 }

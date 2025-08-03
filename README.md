@@ -1,7 +1,7 @@
 # Eyes in the Shadows mod for Minecraft Forge 1.7.10
 ![logo](images/logo_small.png)
 
-## Pre-alpha, eyes don't spawn naturally, poison effect not applied on jumpscare, expect bugs too
+## Alpha state, beware of bugs!
 
 The barrier between the world of the living and the world of the dead is already thin in the Minecraft lands.
 The days as Halloween draws closer, it weakens down even further.
@@ -35,8 +35,8 @@ Original mod showcase by Mischief of Mice:<br>
 ### Changes from the original
 * The eyes are a proper flying entity and not a walking mob.
 * Most eye properties are configurable.
-* Configurable Eyes attacking tamed Wolves, and vice versa.
-* Configurable Eyes fleeing Ocelots and Cats.
+* Configurable Eyes attacking tamed Wolves, and vice versa, plus other mobs.
+* Configurable Eyes fleeing Ocelots and Cats, and other mobs.
 * Implemented configurable aggression changing based on light level.
 * Thaumcraft integration (aspects, possibility to warp the player upon jumpscare).
 

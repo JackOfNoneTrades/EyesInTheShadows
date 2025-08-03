@@ -21,6 +21,7 @@ public class Config {
     private static class Defaults {
 
         /* general */
+        public static final boolean passiveEyes = false;
         public static final boolean debugMode = false;
         public static final boolean jumpscare = true;
         public static final boolean eyesCanAttackWhileLit = false;
@@ -28,13 +29,13 @@ public class Config {
         public static final double speedFullAggro = 0.5;
 
         /* potion */
-        public static final String[] potionNames = {};
+        public static final Potion[] potionNames = { Potion.confusion, Potion.poison };
         public static final int potionDuration = 10;
         public static final int potionAmplifier = 0;
-        public static final String[] potionCollisionNames = {};
+        public static final Potion[] potionCollisionNames = {};
         public static final int potionCollisionDuration = 10;
         public static final int potionCollisionAmplifier = 0;
-        public static final String[] potionLookNames = {};
+        public static final Potion[] potionLookNames = {};
         public static final int potionLookDuration = 10;
         public static final int potionLookAmplifier = 0;
         public static final Potion[] potionIgnoreDisappearNames = { Potion.blindness, Potion.invisibility };
@@ -85,8 +86,8 @@ public class Config {
         public static final boolean printMobs = false;
         public static final String[] mobStringsAttackingEyes = {};
         public static final String[] mobStringsThatEyesAttack = {};
-        public static final String[] mobStringsFleeingEyes = {};
-        public static final String[] mobStringsThatEyesFlee = {};
+        public static final String[] mobStringsFleeingEyes = { "SnowMan", "Villager" };
+        public static final String[] mobStringsThatEyesFlee = { "Ozelot" };
         public static final boolean mobsFleeDormantEyes = false;
         public static final float damageFromWet = 0;
         public static final int spawnCycleSpawnWarningTime = 200;
@@ -114,18 +115,19 @@ public class Config {
     }
 
     /* general */
+    public static boolean passiveEyes = Defaults.passiveEyes;
     public static boolean debugMode = Defaults.debugMode;
     public static boolean jumpscare = Defaults.jumpscare;
     public static boolean eyesCanAttackWhileLit = Defaults.eyesCanAttackWhileLit;
 
     /* potion */
-    public static String[] potionNames = Defaults.potionNames;
+    public static Potion[] potionNames = Defaults.potionNames;
     public static int potionDuration = Defaults.potionDuration;
     public static int potionAmplifier = Defaults.potionAmplifier;
-    public static String[] potionCollisionNames = Defaults.potionCollisionNames;
+    public static Potion[] potionCollisionNames = Defaults.potionCollisionNames;
     public static int potionCollisionDuration = Defaults.potionCollisionDuration;
     public static int potionCollisionAmplifier = Defaults.potionCollisionAmplifier;
-    public static String[] potionLookNames = Defaults.potionLookNames;
+    public static Potion[] potionLookNames = Defaults.potionLookNames;
     public static int potionLookDuration = Defaults.potionLookDuration;
     public static int potionLookAmplifier = Defaults.potionLookAmplifier;
     public static Potion[] potionIgnoreDisappearNames = Defaults.potionIgnoreDisappearNames;
@@ -260,6 +262,13 @@ public class Config {
 
     public static void synchronizeConfigurationCommon() {
         /* general */
+        Property passiveEyesProperty = config.get(
+            Categories.general,
+            "passiveEyes",
+            Defaults.passiveEyes,
+            "Whether eye attack behavior is completely disabled.");
+        passiveEyes = passiveEyesProperty.getBoolean();
+
         Property debugModeProperty = config
             .get(Categories.general, "debugMode", Defaults.debugMode, "Enable/disable debug logs.");
         debugMode = debugModeProperty.getBoolean();
@@ -287,9 +296,9 @@ public class Config {
         Property potionNamesProperty = config.get(
             Categories.potion,
             "potionNames",
-            Defaults.potionNames,
+            potionToStrArray(Defaults.potionNames),
             "List of potion effect names that should be applied to a player attacked by Eyes.");
-        potionNames = potionNamesProperty.getStringList();
+        potionNames = stringToPotionArr(potionNamesProperty.getStringList());
 
         Property potionDurationProperty = config.get(
             Categories.potion,
@@ -312,9 +321,9 @@ public class Config {
         Property potionCollisionNamesProperty = config.get(
             Categories.potion,
             "potionCollisionNames",
-            Defaults.potionCollisionNames,
+            potionToStrArray(Defaults.potionCollisionNames),
             "List of potion effect names that should be applied to a player colliding with the eyes.");
-        potionCollisionNames = potionCollisionNamesProperty.getStringList();
+        potionCollisionNames = stringToPotionArr(potionCollisionNamesProperty.getStringList());
 
         Property potionCollisionDurationProperty = config.get(
             Categories.potion,
@@ -337,9 +346,9 @@ public class Config {
         Property potionLookNamesProperty = config.get(
             Categories.potion,
             "potionLookNames",
-            Defaults.potionLookNames,
+            potionToStrArray(Defaults.potionLookNames),
             "List of potion effect names that should be applied to a player looking at the eyes.");
-        potionLookNames = potionLookNamesProperty.getStringList();
+        potionLookNames = stringToPotionArr(potionLookNamesProperty.getStringList());
 
         Property potionLookDurationProperty = config.get(
             Categories.potion,
@@ -693,12 +702,14 @@ public class Config {
             "List of mobs that Eyes should flee.");
         mobStringsThatEyesFlee = mobStringsThatEyesFleeProperty.getStringList();
 
-        Property mobsFleeDormantEyesProperty = config.get(
-            Categories.mob_interactions,
-            "mobsFleeDormantEyes",
-            Defaults.mobsFleeDormantEyes,
-            "Controls whether mobs flee dormant eyes.");
-        mobsFleeDormantEyes = mobsFleeDormantEyesProperty.getBoolean();
+        /*
+         * Property mobsFleeDormantEyesProperty = config.get(
+         * Categories.mob_interactions,
+         * "mobsFleeDormantEyes",
+         * Defaults.mobsFleeDormantEyes,
+         * "Controls whether mobs flee dormant eyes.");
+         * mobsFleeDormantEyes = mobsFleeDormantEyesProperty.getBoolean();
+         */
 
         /* Visual */
         Property blinkDurationProperty = config.get(

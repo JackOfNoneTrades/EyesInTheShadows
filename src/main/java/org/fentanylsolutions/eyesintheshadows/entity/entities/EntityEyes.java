@@ -135,8 +135,10 @@ public class EntityEyes extends EntityFlying implements IModEntity {
             this.tasks.addTask(4, new FlyingAIAttackOnCollide(this, EntityWolf.class, 1.0D, true));
         }
 
-        this.targetTasks.addTask(1, new FlyingAINearestAttackableTarget(this, EntityPlayerMP.class, 0, false));
-        this.tasks.addTask(1, new FlyingCreepTowardPlayer(this));
+        if (!Config.passiveEyes) {
+            this.targetTasks.addTask(1, new FlyingAINearestAttackableTarget(this, EntityPlayerMP.class, 0, false));
+            this.tasks.addTask(1, new FlyingCreepTowardPlayer(this));
+        }
         if (Config.eyesWander) {
             this.tasks.addTask(15, new FlyingEyesWander(this, 1.0D));
         }
@@ -337,18 +339,14 @@ public class EntityEyes extends EntityFlying implements IModEntity {
                     if (shouldDisappear) {
                         disappear(true);
                         if (Config.potionLookNames.length > 0) {
-                            String name = Config.potionLookNames[EyesInTheShadows.varInstanceCommon.rand
+                            Potion p = Config.potionLookNames[EyesInTheShadows.varInstanceCommon.rand
                                 .nextInt(Config.potionLookNames.length)];
-                            Potion p = EyesInTheShadows.varInstanceCommon.potionLookList.get(name);
-                            if (p != null) {
-                                player.addPotionEffect(
-                                    new PotionEffect(
-                                        p.getId(),
-                                        Config.potionLookDuration * 20,
-                                        Config.potionLookAmplifier));
-                            } else {
-                                EyesInTheShadows.LOG.warn("No potion found for " + name);
-                            }
+                            player.addPotionEffect(
+                                new PotionEffect(
+                                    p.getId(),
+                                    Config.potionLookDuration * 20,
+                                    Config.potionLookAmplifier));
+
                         }
                     }
                 }
@@ -407,15 +405,10 @@ public class EntityEyes extends EntityFlying implements IModEntity {
         boolean jumpScared = Config.jumpscare && attackedEntity instanceof EntityPlayerMP;
         if (jumpScared) {
             if (Config.potionNames.length > 0) {
-                String name = Config.potionNames[EyesInTheShadows.varInstanceCommon.rand
+                Potion p = Config.potionNames[EyesInTheShadows.varInstanceCommon.rand
                     .nextInt(Config.potionNames.length)];
-                Potion p = EyesInTheShadows.varInstanceCommon.potionList.get(name);
-                if (p != null) {
-                    ((EntityLivingBase) attackedEntity).addPotionEffect(
-                        new PotionEffect(p.getId(), Config.potionDuration * 20, Config.potionAmplifier));
-                } else {
-                    EyesInTheShadows.LOG.warn("No potion found for " + name);
-                }
+                ((EntityLivingBase) attackedEntity)
+                    .addPotionEffect(new PotionEffect(p.getId(), Config.potionDuration * 20, Config.potionAmplifier));
             }
             jumpscare((EntityPlayerMP) attackedEntity);
             disappear(false);
@@ -630,18 +623,11 @@ public class EntityEyes extends EntityFlying implements IModEntity {
         if (entityIn instanceof EntityPlayer && !((EntityPlayer) entityIn).capabilities.isCreativeMode) {
             disappear(true);
             if (Config.potionCollisionNames.length > 0) {
-                String name = Config.potionCollisionNames[EyesInTheShadows.varInstanceCommon.rand
+                Potion p = Config.potionCollisionNames[EyesInTheShadows.varInstanceCommon.rand
                     .nextInt(Config.potionCollisionNames.length)];
-                Potion p = EyesInTheShadows.varInstanceCommon.potionCollisionList.get(name);
-                if (p != null) {
-                    ((EntityLivingBase) entityIn).addPotionEffect(
-                        new PotionEffect(
-                            p.getId(),
-                            Config.potionCollisionDuration * 20,
-                            Config.potionCollisionAmplifier));
-                } else {
-                    EyesInTheShadows.LOG.warn("No potion found for " + name);
-                }
+
+                ((EntityLivingBase) entityIn).addPotionEffect(
+                    new PotionEffect(p.getId(), Config.potionCollisionDuration * 20, Config.potionCollisionAmplifier));
             }
         }
         // super.collideWithEntity(entityIn);
