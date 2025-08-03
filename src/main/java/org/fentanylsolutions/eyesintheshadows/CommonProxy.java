@@ -9,6 +9,8 @@ import org.fentanylsolutions.eyesintheshadows.event.CommonEventHandler;
 import org.fentanylsolutions.eyesintheshadows.modcompat.ForbiddenMagicCompat;
 import org.fentanylsolutions.eyesintheshadows.modcompat.ThaumcraftCompat;
 import org.fentanylsolutions.eyesintheshadows.packet.PacketHandler;
+import org.fentanylsolutions.eyesintheshadows.util.BiomeUtil;
+import org.fentanylsolutions.eyesintheshadows.util.DimensionUtil;
 import org.fentanylsolutions.eyesintheshadows.util.MobUtil;
 import org.fentanylsolutions.eyesintheshadows.util.PotionUtil;
 import org.fentanylsolutions.eyesintheshadows.util.Util;
@@ -69,7 +71,16 @@ public class CommonProxy {
         if (Config.printMobs) {
             MobUtil.printMobNames();
         }
+
+        if (Config.printBiomes) {
+            BiomeUtil.printBiomeNames();
+        }
         EyesInTheShadows.varInstanceCommon.postInitHook();
+
+        // Needs to happen after the post init hook
+        if (Config.printDimensions) {
+            DimensionUtil.printDimensionNames();
+        }
 
         eyesSpawningManager = new EyesSpawningManager();
         MinecraftForge.EVENT_BUS.register(eyesSpawningManager);

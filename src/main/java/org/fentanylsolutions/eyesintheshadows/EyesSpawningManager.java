@@ -79,9 +79,9 @@ public class EyesSpawningManager {
 
         for (String s : Config.dimensionSpawnNames) {
             if (world.getProviderName()
-                .equals(s) && !Config.biomeListIsWhitelist
+                .equals(s) && !Config.dimensionListIsWhitelist
                 || !world.getProviderName()
-                    .equals(s) && Config.biomeListIsWhitelist) {
+                    .equals(s) && Config.dimensionListIsWhitelist) {
                 return;
             }
         }
@@ -119,6 +119,16 @@ public class EyesSpawningManager {
                                                                                                      // &&
                                                                                                      // e.distanceToSqr(player)
                                                                                                      // <= dSqr);
+
+                    for (String s : Config.biomeSpawnNames) {
+                        if (world.getBiomeGenForCoords((int) player.posX, (int) player.posZ).biomeName.equals(s)
+                            && !Config.biomeListIsWhitelist
+                            || !world.getBiomeGenForCoords((int) player.posX, (int) player.posZ).biomeName.equals(s)
+                                && Config.biomeListIsWhitelist) {
+                            return;
+                        }
+                    }
+
                     if (entities.size() < maxEyesAroundPlayer) {
                         spawnOneAround(
                             Vec3.createVectorHelper(player.posX, player.posY, player.posZ),

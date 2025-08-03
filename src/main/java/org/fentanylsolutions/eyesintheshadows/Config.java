@@ -84,6 +84,8 @@ public class Config {
         public static final boolean eyesWander = true;
         public static final boolean printPotions = false;
         public static final boolean printMobs = false;
+        public static final boolean printDimensions = false;
+        public static final boolean printBiomes = false;
         public static final String[] mobStringsAttackingEyes = {};
         public static final String[] mobStringsThatEyesAttack = {};
         public static final String[] mobStringsFleeingEyes = { "SnowMan", "Villager" };
@@ -182,6 +184,8 @@ public class Config {
     public static boolean eyesWander = Defaults.eyesWander;
     public static boolean printPotions = Defaults.printPotions;
     public static boolean printMobs = Defaults.printMobs;
+    public static boolean printDimensions = Defaults.printDimensions;
+    public static boolean printBiomes = Defaults.printBiomes;
     public static String[] mobStringsAttackingEyes = Defaults.mobStringsAttackingEyes;
     public static String[] mobStringsThatEyesAttack = Defaults.mobStringsThatEyesAttack;
     public static String[] mobStringsFleeingEyes = Defaults.mobStringsFleeingEyes;
@@ -617,6 +621,20 @@ public class Config {
             Defaults.printMobs,
             "If set to true, print a list of mob names on game post init.");
         printMobs = printMobsProperty.getBoolean();
+
+        Property printDimensionsProperty = config.get(
+            Categories.misc,
+            "printDimensions",
+            Defaults.printDimensions,
+            "If set to true, print a list of dimension names on game post init.");
+        printDimensions = printDimensionsProperty.getBoolean();
+
+        Property printBiomesProperty = config.get(
+            Categories.misc,
+            "printBiomes",
+            Defaults.printBiomes,
+            "If set to true, print a list of biome names on game post init.");
+        printBiomes = printBiomesProperty.getBoolean();
 
         Property damageFromWetProperty = config.get(
             Categories.misc,

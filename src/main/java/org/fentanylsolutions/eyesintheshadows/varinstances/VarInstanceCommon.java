@@ -6,10 +6,12 @@ import java.util.Hashtable;
 
 import net.minecraft.potion.Potion;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.biome.BiomeGenBase;
 
 import org.fentanylsolutions.eyesintheshadows.Config;
 import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 import org.fentanylsolutions.eyesintheshadows.mixins.early.minecraft.AccessorDimensionManager;
+import org.fentanylsolutions.eyesintheshadows.util.BiomeUtil;
 import org.fentanylsolutions.eyesintheshadows.util.DimensionUtil;
 import org.fentanylsolutions.eyesintheshadows.util.MobUtil;
 import org.fentanylsolutions.eyesintheshadows.util.TimeUtil;
@@ -29,6 +31,7 @@ public class VarInstanceCommon {
     public HashMap<String, Potion> potionCollisionList;
     public HashMap<String, Potion> potionLookList;
     public HashMap<String, DimensionUtil.SimpleDimensionObj> dimensionList;
+    public HashMap<String, BiomeGenBase> biomeList;
     public ArrayList<Class> entitiesAttackingEyesList;
     public ArrayList<Class> entitiesAttackedByEyesList;
     public ArrayList<Class> entitiesFleeingEyesList;
@@ -46,6 +49,7 @@ public class VarInstanceCommon {
         providers = AccessorDimensionManager.getProviders();
         buildPotionList();
         buildDimensionList();
+        buildBiomeList();
         buildMobLists();
     }
 
@@ -66,12 +70,11 @@ public class VarInstanceCommon {
 
     public void buildBiomeList() {
         dimensionList = new HashMap<>();
-        for (String s : Config.dimensionSpawnNames) {
-            DimensionUtil.SimpleDimensionObj sdo = DimensionUtil.getSimpleDimensionObj(s);
-            if (sdo == null) {
-                EyesInTheShadows.LOG.error("Failed to get dimension for name " + s);
-            } else {
-                dimensionList.put(sdo.getName(), sdo);
+        for (String s : Config.biomeSpawnNames) {
+            for (BiomeGenBase b : BiomeUtil.getBiomeList()) {
+                if (s.equals(b.biomeName)) {
+                    biomeList.put(s, b);
+                }
             }
         }
     }

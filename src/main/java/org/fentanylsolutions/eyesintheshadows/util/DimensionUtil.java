@@ -31,30 +31,6 @@ public class DimensionUtil {
         }
     }
 
-    public static void test() {
-        System.out.println("testerino dimensions");
-
-        for (int i : EyesInTheShadows.varInstanceCommon.providers.keySet()) {
-            WorldProvider worldProvider = null;
-            try {
-                if (EyesInTheShadows.varInstanceCommon.providers.get(i) != null) {
-                    worldProvider = EyesInTheShadows.varInstanceCommon.providers.get(i)
-                        .newInstance();
-                }
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-            if (worldProvider == null) {
-                continue;
-            }
-            System.out.println(
-                worldProvider.dimensionId + ", "
-                    + worldProvider.getDimensionName()
-                    + ", "
-                    + worldProvider.getDepartMessage());
-        }
-    }
-
     public static SimpleDimensionObj getSimpleDimensionObj(String name) {
         if (EyesInTheShadows.varInstanceCommon.providers == null) {
             return null;
@@ -107,5 +83,25 @@ public class DimensionUtil {
             }
         }
         return null;
+    }
+
+    public static void printDimensionNames() {
+        EyesInTheShadows.LOG.info("=========Dimension List=========");
+        for (int i : EyesInTheShadows.varInstanceCommon.providers.keySet()) {
+            WorldProvider worldProvider = null;
+            try {
+                if (EyesInTheShadows.varInstanceCommon.providers.get(i) != null) {
+                    worldProvider = EyesInTheShadows.varInstanceCommon.providers.get(i)
+                        .newInstance();
+                }
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            if (worldProvider == null) {
+                continue;
+            }
+            EyesInTheShadows.LOG.info("{} ({})", worldProvider.getDimensionName(), worldProvider.dimensionId);
+        }
+        EyesInTheShadows.LOG.info("=============================");
     }
 }

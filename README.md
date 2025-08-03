@@ -18,8 +18,6 @@ You have been warned.
 ## Dependencies
 
 * [UniMixins](https://modrinth.com/mod/unimixins) ([![curse](images/icons/curse.png)](https://www.curseforge.com/minecraft/mc-mods/unimixins), [![modrinth](images/icons/modrinth.png)](https://modrinth.com/mod/unimixins/versions), [![git](images/icons/git.png)](https://github.com/LegacyModdingMC/UniMixins/releases)) is a required dependency.
-* [CarbonConfig](https://modrinth.com/mod/carbon-config) ([![curse](images/icons/curse.png)](https://www.curseforge.com/minecraft/mc-mods/carbon-config), [![modrinth](images/icons/modrinth.png)](https://modrinth.com/mod/carbon-config), [![git](images/icons/git.png)](https://github.com/Carbon-Config-Project/CarbonConfig)) is a required dependency.
-* [Fentlib]() is a required dependency.
 
 ## FAQ
 ### What is this?
