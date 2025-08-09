@@ -37,6 +37,7 @@ Original mod showcase by Mischief of Mice:<br>
 * Configurable Eyes fleeing Ocelots and Cats, and other mobs.
 * Implemented configurable aggression changing based on light level.
 * Thaumcraft integration (aspects, possibility to warp the player upon jumpscare).
+* Eyes can be made entirely passive. Passive eyes can spawn in peaceful mode.
 
 ### How to build?
 `gradlew build`.

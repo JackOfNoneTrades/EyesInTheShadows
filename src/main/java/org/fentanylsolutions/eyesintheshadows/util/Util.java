@@ -174,26 +174,38 @@ public class Util {
         return Math.max(mixAlpha, 0);
     }
 
-    /* from Minecraft 1.19 net.minecraft.util.Mth */
-    public static double lerp(double p_14140_, double p_14141_, double p_14142_) {
-        return p_14141_ + p_14140_ * (p_14142_ - p_14141_);
-    }
-
-    /* from Minecraft 1.19 net.minecraft.util.Mth */
-    public static double clampedLerp(double p_14086_, double p_14087_, double p_14088_) {
-        if (p_14088_ < 0.0D) {
-            return p_14086_;
+    /* Not as advanced as getEyeRenderingAlpha */
+    /* Goes from 0 to 15 */
+    public static int getBrightnessAtCoord(World world, int x, int y, int z, boolean ignoreArtificialLight) {
+        if (ignoreArtificialLight) {
+            return world.getSavedLightValue(EnumSkyBlock.Sky, x, y, z);
         } else {
-            return p_14088_ > 1.0D ? p_14087_ : lerp(p_14088_, p_14086_, p_14087_);
+            int sky = world.getSavedLightValue(EnumSkyBlock.Sky, x, y, z);
+            int block = world.getSavedLightValue(EnumSkyBlock.Block, x, y, z);
+            return Math.max(sky, block);
         }
     }
 
     /* from Minecraft 1.19 net.minecraft.util.Mth */
-    public static float clampedLerp(float p_144921_, float p_144922_, float p_144923_) {
-        if (p_144923_ < 0.0F) {
-            return p_144921_;
+    public static double lerp(double t, double start, double end) {
+        return start + t * (end - start);
+    }
+
+    /* from Minecraft 1.19 net.minecraft.util.Mth */
+    public static double clampedLerp(double start, double end, double t) {
+        if (t < 0.0D) {
+            return start;
         } else {
-            return p_144923_ > 1.0F ? p_144922_ : (float) lerp(p_144923_, p_144921_, p_144922_);
+            return t > 1.0D ? end : lerp(t, start, end);
+        }
+    }
+
+    /* from Minecraft 1.19 net.minecraft.util.Mth */
+    public static float clampedLerp(float start, float end, float t) {
+        if (t < 0.0F) {
+            return start;
+        } else {
+            return t > 1.0F ? end : (float) lerp(t, start, end);
         }
     }
 

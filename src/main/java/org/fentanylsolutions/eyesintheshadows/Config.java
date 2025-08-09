@@ -69,6 +69,8 @@ public class Config {
         public static final int maxEyesAroundPlayerHalloween = 5;
         public static final int maxTotalEyesPerDimensionHalloween = 25;
         public static final float maxEyesSpawnDistance = 64;
+        public static final boolean spawnUnderCover = false;
+        public static final int maxSpawnLightLevel = 15;
 
         /* misc */
         public static final float aggroEscalationPerTick = 1f / (20 * 60 * 5);
@@ -165,8 +167,9 @@ public class Config {
     public static int spawnCycleIntervalHalloween = Defaults.spawnCycleIntervalHalloween;
     public static int maxEyesAroundPlayerHalloween = Defaults.maxEyesAroundPlayerHalloween;
     public static int maxTotalEyesPerDimensionHalloween = Defaults.maxTotalEyesPerDimensionHalloween;
-
     public static float maxEyesSpawnDistance = 64;
+    public static boolean spawnUnderCover = Defaults.spawnUnderCover;
+    public static int maxSpawnLightLevel = Defaults.maxSpawnLightLevel;
 
     /* sounds */
     public static float eyeIdleVolume = Defaults.eyeIdleVolume;
@@ -492,7 +495,7 @@ public class Config {
             Categories.spawning,
             "enableNaturalSpawn",
             Defaults.enableNaturalSpawn,
-            "Enable or disable natural Eye spawning.");
+            "Enable or disable natural Eye spawning. Useful if using another spawning manager.");
         enableNaturalSpawn = enableNaturalSpawnProperty.getBoolean();
 
         Property biomeSpawnNamesProperty = config
@@ -606,6 +609,19 @@ public class Config {
             1,
             Integer.MAX_VALUE);
         maxEyesSpawnDistance = (float) maxEyesSpawnDistanceProperty.getDouble();
+
+        Property spawnUnderCoverProperty = config
+            .get(Categories.spawning, "spawnUnderCover", Defaults.spawnUnderCover, "Spawn only when cannot see sky.");
+        spawnUnderCover = spawnUnderCoverProperty.getBoolean();
+
+        Property maxSpawnLightLevelProperty = config.get(
+            Categories.spawning,
+            "maxSpawnLightLevel",
+            Defaults.maxSpawnLightLevel,
+            "Max light level at which eyes will spawn.",
+            0,
+            15);
+        maxSpawnLightLevel = maxSpawnLightLevelProperty.getInt();
 
         /* misc */
         Property printPotionsProperty = config.get(

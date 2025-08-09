@@ -476,6 +476,16 @@ public class EntityEyes extends EntityFlying implements IModEntity {
         return ticksExisted > Config.despawnAfterAmountOfTicks;
     }
 
+    /*
+     * @Override
+     * public boolean getCanSpawnHere() {
+     * if (!EyesSpawningManager.allowSpawnMonsters(this.worldObj)) {
+     * return false;
+     * }
+     * return super.getCanSpawnHere();
+     * }
+     */
+
     // *****************************************************
     // ENCAPSULATION SETTER AND GETTER METHODS
     // Don't forget to send sync packets in setters

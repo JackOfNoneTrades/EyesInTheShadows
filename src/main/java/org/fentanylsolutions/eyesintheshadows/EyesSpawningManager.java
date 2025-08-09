@@ -6,15 +6,16 @@ import java.util.concurrent.TimeUnit;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.dedicated.PropertyManager;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.SpawnerAnimals;
 import net.minecraft.world.World;
 
 import org.fentanylsolutions.eyesintheshadows.entity.entities.EntityEyes;
 import org.fentanylsolutions.eyesintheshadows.util.TimeUtil;
+import org.fentanylsolutions.eyesintheshadows.util.Util;
 
 import com.google.common.base.Stopwatch;
 
@@ -28,25 +29,10 @@ public class EyesSpawningManager {
     private int cooldown;
     private int ticks;
 
-    PropertyManager serverPropertyManager;
+    public EyesSpawningManager() {}
 
-    public EyesSpawningManager() {
-        /*
-         * try {
-         * this.serverPropertyManager = (PropertyManager)
-         * EyesInTheShadows.varInstanceCommon.settingsField.get(DedicatedServer.getServer());
-         * } catch (IllegalAccessException e) {
-         * EyesInTheShadows.LOG.error("Reflection failed");
-         * e.printStackTrace();
-         * }
-         */
-    }
-
-    boolean allowSpawnMonsters() {
-        if (this.serverPropertyManager == null) {
-            return true;
-        }
-        return this.serverPropertyManager.getBooleanProperty("spawn-monsters", true);
+    public static boolean allowSpawnMonsters(World world) {
+        return world.difficultySetting != EnumDifficulty.PEACEFUL || Config.passiveEyes;
     }
 
     @SubscribeEvent
@@ -73,7 +59,7 @@ public class EyesSpawningManager {
             return;
         }
 
-        if (!allowSpawnMonsters()) {
+        if (!allowSpawnMonsters(world)) {
             return;
         }
 
@@ -105,7 +91,7 @@ public class EyesSpawningManager {
             }
 
             float d = Config.maxEyesSpawnDistance * 1.5f;
-            float dSqr = d * d;
+            // float dSqr = d * d;
             AxisAlignedBB size = AxisAlignedBB.getBoundingBox(0, 0, 0, d, d, d); // .ofSize(Vec3.ZERO, d, d, d);
 
             List<EntityPlayer> players = world.playerEntities;
@@ -119,6 +105,16 @@ public class EyesSpawningManager {
                                                                                                      // &&
                                                                                                      // e.distanceToSqr(player)
                                                                                                      // <= dSqr);
+
+                    if (Config.spawnUnderCover
+                        && world.canBlockSeeTheSky((int) player.posX, (int) player.posY, (int) player.posZ)) {
+                        return;
+                    }
+
+                    if (Util.getBrightnessAtCoord(world, (int) player.posX, (int) player.posY, (int) player.posZ, false)
+                        > Config.maxSpawnLightLevel) {
+                        return;
+                    }
 
                     for (String s : Config.biomeSpawnNames) {
                         if (world.getBiomeGenForCoords((int) player.posX, (int) player.posZ).biomeName.equals(s)
@@ -142,8 +138,10 @@ public class EyesSpawningManager {
             watch.stop();
 
             long us = watch.elapsed(TimeUnit.MICROSECONDS);
-            if (us > 100) // default = 50ms{
+            // default = 50ms
+            if (us > 100) {
                 EyesInTheShadows.LOG.warn("WARNING: Unexpectedly long spawn cycle. It ran for " + us / 1000.0 + "ms!");
+            }
         }
 
         watch.reset();
@@ -235,8 +233,10 @@ public class EyesSpawningManager {
                  * }
                  */
 
-                entity.setPosition(pX, pY, pZ);
-                EyesInTheShadows.LOG.debug("Spawned eyes @ {" + pX + ";" + pY + ";" + pZ + "}");
+                // We are adding 1 to Y so the eyes spawn 1 block above ground. We cant pass Y + 1 to
+                // canCreatureTypeSpawnAtLocation because it can only spawn stuff on the ground
+                entity.setPosition(pX, pY + 1, pZ);
+                EyesInTheShadows.debug("Spawned eyes @ {" + pX + ";" + pY + ";" + pZ + "}");
                 player.worldObj.spawnEntityInWorld(entity);
 
                 return;
