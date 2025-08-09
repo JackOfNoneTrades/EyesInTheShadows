@@ -224,12 +224,15 @@ public class ModelEyes extends ModelBase {
         GL11.glPopMatrix();
 
         // reset fog color
+        /*
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 0x00F0, 0x00F0);
         GL11.glDisable(GL11.GL_BLEND);
         // GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glDepthMask(true);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+         */
     }
 
     @Override
