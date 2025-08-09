@@ -16,7 +16,6 @@ import net.minecraft.potion.Potion;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fentanylsolutions.eyesintheshadows.Config;
-import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 
 /**
  * Modified version of EntityAINearestAttackableTarget that works with EntityEyes (which extends EntityFlying)
@@ -137,7 +136,7 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
     @Override
     public void startExecuting() {
         this.taskOwner.setAttackTarget(this.targetEntity);
-        EyesInTheShadows.LOG.info("Set eye target to " + this.targetEntity);
+        // EyesInTheShadows.LOG.debug("Set eye target to " + this.targetEntity);
         this.targetSearchStatus = 0;
         this.targetSearchDelay = 0;
         this.timeHaventSeenTarget = 0;
@@ -146,7 +145,7 @@ public class FlyingAINearestAttackableTarget extends EntityAIBase {
     @Override
     public void resetTask() {
         this.taskOwner.setAttackTarget(null);
-        EyesInTheShadows.LOG.info("Reset eye target");
+        // EyesInTheShadows.LOG.debug("Reset eye target");
     }
 
     protected boolean isSuitableTarget(EntityLivingBase target, boolean includeInvulnerables) {
