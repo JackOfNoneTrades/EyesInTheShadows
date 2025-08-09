@@ -1,7 +1,7 @@
 # Eyes in the Shadows mod for Minecraft Forge 1.7.10
 ![logo](images/logo_small.png)
 
-## Alpha state, beware of bugs!
+### Beta state, beware of bugs!
 
 The barrier between the world of the living and the world of the dead is already thin in the Minecraft lands.
 The days as Halloween draws closer, it weakens down even further.
@@ -14,6 +14,11 @@ If you see the eyes, don't turn away from them.
 Or do, at your own risk.
 <br>
 You have been warned.
+
+## Downloads
+* [CurseForge ![curse](images/icons/curse.png)](https://www.curseforge.com/minecraft/mc-mods/eyes-in-the-shadows)
+* [Modrinth ![modrinth](images/icons/modrinth.png)](https://modrinth.com/mod/eyes-in-the-shadows)
+* [Git ![git](images/icons/git.png)](https://github.com/JackOfNoneTrades/EyesInTheShadows/releases)
 
 ## Dependencies
 
@@ -28,7 +33,6 @@ Please DO NOT report any issues or send any requests concerning this port to gig
 Original mod showcase by Mischief of Mice:<br>
 [![Original mod showcase by Mischief of Mice](https://img.youtube.com/vi/JxcLQwxwgyw/0.jpg)](https://www.youtube.com/watch?v=JxcLQwxwgyw)
 <br>
-<!--For an easier configuration, use the mod [ConfigMaxxing](https://github.com/trollogyadherent/ConfigMaxxing). To allow passive mobs to attack Eyes (if you wish to configure this), you will need the mod [Anger Issue](https://github.com/trollogyadherent/AngerIssue).-->
 
 ### Changes from the original
 * The eyes are a proper flying entity and not a walking mob.
