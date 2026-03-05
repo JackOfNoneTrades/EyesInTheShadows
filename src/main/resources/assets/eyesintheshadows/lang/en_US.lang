@@ -1,6 +1,11 @@
 eyesintheshadows.configgui.title=Eyes in the Shadows Config
 eyesintheshadows.entity.eyes.name=Eyes
 entity.eyesintheshadows.Eyes.name=Eyes
+entity.eyesintheshadows.Eyes=Eyes
+eyesintheshadows.Eyes=Eyes
+entity.eyesintheshadows.eyes.name=Eyes
+entity.eyesintheshadows.eyes=Eyes
+eyesintheshadows.eyes=Eyes
 
 eyesintheshadows.potion_selection_title=Please select a potion:
 eyesintheshadows.mob_selection_title=Please select a mob:
