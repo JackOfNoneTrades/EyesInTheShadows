@@ -53,9 +53,9 @@ public class Config {
         public static final int despawnAfterAmountOfTicks = 2400;
         public static final boolean enableNaturalSpawn = true;
         public static final String[] biomeSpawnNames = new String[0];
-        public static final boolean biomeListIsWhitelist = true;
+        public static final boolean biomeListIsWhitelist = false;
         public static final String[] dimensionSpawnNames = new String[0];
-        public static final boolean dimensionListIsWhitelist = true;
+        public static final boolean dimensionListIsWhitelist = false;
 
         public static final int spawnCycleIntervalNormal = 150;
         public static final int maxEyesAroundPlayerNormal = 2;

@@ -63,13 +63,8 @@ public class EyesSpawningManager {
             return;
         }
 
-        for (String s : Config.dimensionSpawnNames) {
-            if (world.getProviderName()
-                .equals(s) && !Config.dimensionListIsWhitelist
-                || !world.getProviderName()
-                    .equals(s) && Config.dimensionListIsWhitelist) {
-                return;
-            }
+        if (!isDimensionAllowed(world)) {
+            return;
         }
 
         try {
@@ -91,41 +86,43 @@ public class EyesSpawningManager {
             }
 
             float d = Config.maxEyesSpawnDistance * 1.5f;
-            // float dSqr = d * d;
-            AxisAlignedBB size = AxisAlignedBB.getBoundingBox(0, 0, 0, d, d, d); // .ofSize(Vec3.ZERO, d, d, d);
+            float dSqr = d * d;
 
             List<EntityPlayer> players = world.playerEntities;
             int wrap = Math.min(players.size(), 20);
             for (EntityPlayer player : players) {
                 if (((player.getEntityId() + ticks) % wrap) == 0 && !player.capabilities.isCreativeMode) {
-                    List<EntityEyes> entities = world.getEntitiesWithinAABB(EntityEyes.class, size); // world.getEntities(EyesInTheDarkness.EYES.get(),
-                                                                                                     // size.move(player.position()),
-                                                                                                     // e ->
-                                                                                                     // !e.countsTowardSpawnCap()
-                                                                                                     // &&
-                                                                                                     // e.distanceToSqr(player)
-                                                                                                     // <= dSqr);
+                    AxisAlignedBB searchBox = AxisAlignedBB.getBoundingBox(
+                        player.posX - d,
+                        player.posY - d,
+                        player.posZ - d,
+                        player.posX + d,
+                        player.posY + d,
+                        player.posZ + d);
+                    List<EntityEyes> entities = world.getEntitiesWithinAABB(EntityEyes.class, searchBox);
+
+                    int nearbyCount = 0;
+                    for (EntityEyes eye : entities) {
+                        if (eye.getDistanceSqToEntity(player) <= dSqr) {
+                            nearbyCount++;
+                        }
+                    }
 
                     if (Config.spawnUnderCover
                         && world.canBlockSeeTheSky((int) player.posX, (int) player.posY, (int) player.posZ)) {
-                        return;
+                        continue;
                     }
 
                     if (Util.getBrightnessAtCoord(world, (int) player.posX, (int) player.posY, (int) player.posZ, false)
                         > Config.maxSpawnLightLevel) {
-                        return;
+                        continue;
                     }
 
-                    for (String s : Config.biomeSpawnNames) {
-                        if (world.getBiomeGenForCoords((int) player.posX, (int) player.posZ).biomeName.equals(s)
-                            && !Config.biomeListIsWhitelist
-                            || !world.getBiomeGenForCoords((int) player.posX, (int) player.posZ).biomeName.equals(s)
-                                && Config.biomeListIsWhitelist) {
-                            return;
-                        }
+                    if (!isBiomeAllowed(world, player)) {
+                        continue;
                     }
 
-                    if (entities.size() < maxEyesAroundPlayer) {
+                    if (nearbyCount < maxEyesAroundPlayer) {
                         spawnOneAround(
                             Vec3.createVectorHelper(player.posX, player.posY, player.posZ),
                             player,
@@ -137,14 +134,38 @@ public class EyesSpawningManager {
         } finally {
             watch.stop();
 
-            long us = watch.elapsed(TimeUnit.MICROSECONDS);
-            // default = 50ms
-            if (us > 100) {
-                EyesInTheShadows.LOG.warn("WARNING: Unexpectedly long spawn cycle. It ran for " + us / 1000.0 + "ms!");
+            long elapsedMs = watch.elapsed(TimeUnit.MILLISECONDS);
+            if (elapsedMs > Config.spawnCycleSpawnWarningTime) {
+                EyesInTheShadows.LOG.warn("WARNING: Unexpectedly long spawn cycle. It ran for " + elapsedMs + "ms!");
             }
         }
 
         watch.reset();
+    }
+
+    private static boolean isDimensionAllowed(World world) {
+        return isNameAllowed(world.getProviderName(), Config.dimensionSpawnNames, Config.dimensionListIsWhitelist);
+    }
+
+    private static boolean isBiomeAllowed(World world, EntityPlayer player) {
+        String biomeName = world.getBiomeGenForCoords((int) player.posX, (int) player.posZ).biomeName;
+        return isNameAllowed(biomeName, Config.biomeSpawnNames, Config.biomeListIsWhitelist);
+    }
+
+    private static boolean isNameAllowed(String value, String[] list, boolean whitelist) {
+        if (list == null || list.length == 0) {
+            return true;
+        }
+
+        boolean found = false;
+        for (String entry : list) {
+            if (value.equals(entry)) {
+                found = true;
+                break;
+            }
+        }
+
+        return whitelist ? found : !found;
     }
 
     private int calculateSpawnCycleInterval(int daysUntilNextHalloween, int minutesToMidnight) {
@@ -196,19 +217,26 @@ public class EyesSpawningManager {
 
     public void spawnOneAround(Vec3 positionVec, EntityPlayer player, float d) {
         float dSqr = d * d;
+        int verticalRange = Math.max(8, Math.min(24, (int) d));
 
         double[] pos = new double[] { 0, 0, 0 };
 
         for (int i = 0; i < 100; i++) {
             double sX = (1 - 2 * EyesInTheShadows.varInstanceCommon.rand.nextFloat()) * d + positionVec.xCoord;
             double sY = MathHelper.clamp_int(
-                (int) (EyesInTheShadows.varInstanceCommon.rand.nextFloat() * d + positionVec.yCoord),
+                (int) (positionVec.yCoord
+                    + (1 - 2 * EyesInTheShadows.varInstanceCommon.rand.nextFloat()) * verticalRange),
                 1,
                 255);
             double sZ = (1 - 2 * EyesInTheShadows.varInstanceCommon.rand.nextFloat()) * d + positionVec.zCoord;
 
+            int spawnY = findValidSpawnY(player.worldObj, (int) sX, (int) sY, (int) sZ, verticalRange);
+            if (spawnY < 0) {
+                continue;
+            }
+
             pos[0] = sX;
-            pos[1] = sY;
+            pos[1] = spawnY;
             pos[2] = sZ;
 
             double pX = pos[0] + 0.5D;
@@ -243,6 +271,32 @@ public class EyesSpawningManager {
             }
             entity.setDead();
         }
+    }
+
+    private static int findValidSpawnY(World world, int x, int startY, int z, int searchRange) {
+        int minY = Math.max(1, startY - searchRange);
+        int maxY = Math.min(255, startY + searchRange);
+
+        // Check the sampled Y first, then alternate up/down to stay near player level.
+        if (SpawnerAnimals.canCreatureTypeSpawnAtLocation(EnumCreatureType.monster, world, x, startY, z)) {
+            return startY;
+        }
+
+        for (int delta = 1; delta <= searchRange; delta++) {
+            int up = startY + delta;
+            if (up <= maxY
+                && SpawnerAnimals.canCreatureTypeSpawnAtLocation(EnumCreatureType.monster, world, x, up, z)) {
+                return up;
+            }
+
+            int down = startY - delta;
+            if (down >= minY
+                && SpawnerAnimals.canCreatureTypeSpawnAtLocation(EnumCreatureType.monster, world, x, down, z)) {
+                return down;
+            }
+        }
+
+        return -1;
     }
 
     private static boolean isValidSpawnSpot(World serverWorld, EntityLivingBase entity, double[] pos,

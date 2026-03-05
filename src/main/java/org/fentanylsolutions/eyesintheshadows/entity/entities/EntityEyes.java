@@ -630,6 +630,10 @@ public class EntityEyes extends EntityFlying implements IModEntity {
 
     @Override
     protected void collideWithEntity(Entity entityIn) {
+        if (Util.getEyeRenderingAlpha(this, Config.eyesCanAttackWhileLit) <= 0) {
+            return;
+        }
+
         if (entityIn instanceof EntityPlayer && !((EntityPlayer) entityIn).capabilities.isCreativeMode) {
             disappear(true);
             if (Config.potionCollisionNames.length > 0) {
