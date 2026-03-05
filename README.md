@@ -1,12 +1,21 @@
 # Eyes in the Shadows mod for Minecraft Forge 1.7.10
 ![logo](images/logo_small.png)
 
-### Beta state, beware of bugs!
-
 The barrier between the world of the living and the world of the dead is already thin in the Minecraft lands.
 The days as Halloween draws closer, it weakens down even further.
 
 ![eyes](images/eyes.gif)
+
+[![hub](images/badges/github.png)](https://github.com/JackOfNoneTrades/EyesInTheShadows/releases)
+[![modrinth](images/badges/modrinth.png)](https://modrinth.com/mod/eyes-in-the-shadows)
+[![curse](images/badges/curse.png)](https://www.curseforge.com/minecraft/mc-mods/eyes-in-the-shadows)
+[![maven](images/badges/maven.png)](https://maven.fentanylsolutions.org/#/releases/org/fentanylsolutions/eyesintheshadows/EyesInTheShadows)
+![forge](images/badges/forge.png)
+[![cord](images/badges/cord.png)](https://discord.gg/xAWCqGrguG)
+
+<!--
+[![mcmodcn](images/badges/mcmodcn.png)](https://www.mcmod.cn/class/24647.html)
+-->
 
 If you see the eyes, don't turn away from them.
 <br>
@@ -15,14 +24,11 @@ Or do, at your own risk.
 <br>
 You have been warned.
 
-## Downloads
-* [CurseForge ![curse](images/icons/curse.png)](https://www.curseforge.com/minecraft/mc-mods/eyes-in-the-shadows)
-* [Modrinth ![modrinth](images/icons/modrinth.png)](https://modrinth.com/mod/eyes-in-the-shadows)
-* [Git ![git](images/icons/git.png)](https://github.com/JackOfNoneTrades/EyesInTheShadows/releases)
+![caves](images/screenshots/cave.png)
 
 ## Dependencies
 
-* [UniMixins](https://modrinth.com/mod/unimixins) ([![curse](images/icons/curse.png)](https://www.curseforge.com/minecraft/mc-mods/unimixins), [![modrinth](images/icons/modrinth.png)](https://modrinth.com/mod/unimixins/versions), [![git](images/icons/git.png)](https://github.com/LegacyModdingMC/UniMixins/releases)) is a required dependency.
+* [UniMixins](https://modrinth.com/mod/unimixins) [![curse](images/icons/curse.png)](https://www.curseforge.com/minecraft/mc-mods/unimixins) [![modrinth](images/icons/modrinth.png)](https://modrinth.com/mod/unimixins/versions) [![git](images/icons/git.png)](https://github.com/LegacyModdingMC/UniMixins/releases)
 
 ## FAQ
 ### What is this?
@@ -42,8 +48,9 @@ Original mod showcase by Mischief of Mice:<br>
 * Implemented configurable aggression changing based on light level.
 * Thaumcraft integration (aspects, possibility to warp the player upon jumpscare).
 * Eyes can be made entirely passive. Passive eyes can spawn in peaceful mode.
+* Configurable dynamic lights support. For technical reasons, it needs to be enabled on server and client.
 
-### How to build?
+### Building
 `gradlew build`.
 
 ## License
