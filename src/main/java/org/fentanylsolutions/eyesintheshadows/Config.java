@@ -80,6 +80,9 @@ public class Config {
         public static final float scaleFactor = 1F;
         public static final float eyeGlowStrength = 2F;
         public static final int eyeGlowPasses = 1;
+        public static final boolean enableDynamicLightApproximation = true;
+        public static final float eyeArtificialLightSensitivityOpenSky = 1.25F;
+        public static final float eyeArtificialLightSensitivityCovered = 1.45F;
         public static final int tickBetweenAttacks = 40;
         public static final boolean eyesAttackTamedWolves = false;
         public static final boolean wolvesAttackEyes = true;
@@ -185,6 +188,9 @@ public class Config {
     public static float scaleFactor = Defaults.scaleFactor;
     public static float eyeGlowStrength = Defaults.eyeGlowStrength;
     public static int eyeGlowPasses = Defaults.eyeGlowPasses;
+    public static boolean enableDynamicLightApproximation = Defaults.enableDynamicLightApproximation;
+    public static float eyeArtificialLightSensitivityOpenSky = Defaults.eyeArtificialLightSensitivityOpenSky;
+    public static float eyeArtificialLightSensitivityCovered = Defaults.eyeArtificialLightSensitivityCovered;
     public static boolean eyesAttackTamedWolves = Defaults.eyesAttackTamedWolves;
     public static boolean wolvesAttackEyes = Defaults.wolvesAttackEyes;
     public static boolean mobsAttackDormantEyes = Defaults.mobsAttackDormantEyes;
@@ -783,6 +789,31 @@ public class Config {
             blinkChanceProp.setConfigEntryClass(GuiConfigEntries.NumberSliderEntry.class);
         }
         blinkChance = (float) blinkChanceProp.getDouble();
+
+        Property enableDynamicLightApproximationProperty = config.get(
+            Categories.visual,
+            "enableDynamicLightApproximation",
+            Defaults.enableDynamicLightApproximation,
+            "Enable or disable Eyes dynamic-light approximation (handheld or dropped emissive items) on both client and server. When false, Eyes only react to vanilla block light.");
+        enableDynamicLightApproximation = enableDynamicLightApproximationProperty.getBoolean();
+
+        Property eyeArtificialLightSensitivityOpenSkyProperty = config.get(
+            Categories.visual,
+            "eyeArtificialLightSensitivityOpenSky",
+            Defaults.eyeArtificialLightSensitivityOpenSky,
+            "Multiplier for how strongly artificial light fades Eyes while they are exposed to the sky. Higher values make nearby lights hide Eyes more aggressively.",
+            0,
+            4);
+        eyeArtificialLightSensitivityOpenSky = (float) eyeArtificialLightSensitivityOpenSkyProperty.getDouble();
+
+        Property eyeArtificialLightSensitivityCoveredProperty = config.get(
+            Categories.visual,
+            "eyeArtificialLightSensitivityCovered",
+            Defaults.eyeArtificialLightSensitivityCovered,
+            "Multiplier for how strongly artificial light fades Eyes while under cover. Higher values make torches and dynamic lights suppress Eyes from farther away.",
+            0,
+            4);
+        eyeArtificialLightSensitivityCovered = (float) eyeArtificialLightSensitivityCoveredProperty.getDouble();
 
         EyesInTheShadows.varInstanceCommon.buildPotionList();
         EyesInTheShadows.varInstanceCommon.buildDimensionList();

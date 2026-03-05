@@ -12,6 +12,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 
+import org.fentanylsolutions.eyesintheshadows.Config;
 import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 import org.fentanylsolutions.eyesintheshadows.spawnegg.EyesMonsterPlacer;
 
@@ -139,7 +140,14 @@ public class Util {
     }
 
     public static float getLightSourceBrightness(World world, int x, int y, int z) {
-        return world.getSavedLightValue(EnumSkyBlock.Block, x, y, z) / 15.F;
+        float blockLight = world.getSavedLightValue(EnumSkyBlock.Block, x, y, z) / 15.F;
+
+        if (!Config.enableDynamicLightApproximation || blockLight >= 1.0F) {
+            return blockLight;
+        }
+
+        // Use the same approximation on both sides to keep gameplay and visuals aligned.
+        return Math.max(blockLight, DynamicLightApproximation.getBrightness(world, x, y, z));
     }
 
     /* Calculating how transparent the eyes should be, from 0 to 1 */
@@ -159,15 +167,14 @@ public class Util {
              * If the entity is exposed to the sky, we subtract the sun brightness and the brightness from torches/other
              * light emitting blocks
              */
-            mixAlpha = 1 - Util.getSunBrightness(entity.worldObj) - artificialLight;
+            mixAlpha = 1 - Util.getSunBrightness(entity.worldObj)
+                - artificialLight * Config.eyeArtificialLightSensitivityOpenSky;
         } else {
             /*
-             * Otherwise, we subtract the light emitted by nearby blocks * 1.1, and the getBrightness * sun brightness.
-             * getBrightness calculates how much the entity receives light from the sky. Then we multiply because the
-             * more day it is, the more we want to actually "enforce it".
-             * It blends pretty well.
+             * Otherwise, we subtract artificial light and sky contribution with a separate sensitivity multiplier for
+             * covered areas.
              */
-            mixAlpha = 1 - artificialLight * 1.1F
+            mixAlpha = 1 - artificialLight * Config.eyeArtificialLightSensitivityCovered
                 - (entity.getBrightness(1.0F) * Util.getSunBrightness(entity.worldObj));
         }
 
