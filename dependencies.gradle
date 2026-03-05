@@ -34,13 +34,19 @@
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
 dependencies {
-    runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.4-GTNH:dev")
-    runtimeOnlyNonPublishable(rfg.deobf("curse.maven:skinport-234948:3212017"))
-    // api("maven.modrinth:carbon-config:ttXTOUmO")
-    compileOnly('com.github.GTNewHorizons:Baubles-Expanded:2.1.6-GTNH:dev')
-    compileOnlyApi('thaumcraft:Thaumcraft:1.7.10-4.2.3.5:dev') {transitive=false}
-    compileOnly('com.github.GTNewHorizons:ForbiddenMagic:0.8.0-GTNH:dev') {exclude module: "Baubles" }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Hodgepodge:2.7.89:dev")
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.8.72-GTNH:dev")
+    runtimeOnlyNonPublishable("curse.maven:archaicfix-677782:6785842")
+    //runtimeOnlyNonPublishable("com.github.GTNewHorizons:Angelica:2.0.0-alpha25:dev")
+    runtimeOnlyNonPublishable(rfg.deobf("curse.maven:catalogue-vintage-1465746:7695645")) // 1.0.2-1.7.10
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:GTNHLib:0.9.36:dev")
+    runtimeOnlyNonPublishable("org.fentanylsolutions.fentlib:FentLib:0.0.44:dev")
 
-    /* Fixes the mod menu being broken ingame, allows for quick config testing */
-    runtimeOnlyNonPublishable(rfg.deobf("curse.maven:endercore-231868:4671288"))
+    runtimeOnlyNonPublishable(rfg.deobf("curse.maven:skinport-234948:3212017"))
+
+    // api("maven.modrinth:carbon-config:ttXTOUmO")
+    compileOnly('com.github.GTNewHorizons:Baubles-Expanded:2.2.10-GTNH-pre:dev')
+    compileOnlyApi('thaumcraft:Thaumcraft:1.7.10-4.2.3.5:dev') {transitive=false}
+    compileOnly('com.github.GTNewHorizons:ForbiddenMagic:0.9.11-GTNH:dev') {exclude module: "Baubles" }
+
 }
