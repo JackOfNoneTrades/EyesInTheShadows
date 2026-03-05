@@ -8,7 +8,7 @@ import net.minecraftforge.common.config.ConfigElement;
 import org.fentanylsolutions.eyesintheshadows.Config;
 import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import cpw.mods.fml.client.config.GuiConfig;
 import cpw.mods.fml.client.config.IConfigElement;
@@ -31,7 +31,7 @@ public class ConfigGui extends GuiConfig {
         // this.parentScreen = parent;
         super(
             parent,
-            ImmutableList.of(ceGeneral, ceAggro, ceSpawning, cePotion, ceMobInteractions, ceVisual, ceSounds, ceMisc),
+            Lists.newArrayList(ceGeneral, ceAggro, ceSpawning, cePotion, ceMobInteractions, ceVisual, ceSounds, ceMisc),
             EyesInTheShadows.MODID,
             EyesInTheShadows.MODID,
             false,
