@@ -123,6 +123,13 @@ public class ModelEyes extends ModelBase {
         if (mixAlpha == 0) {
             return;
         }
+        float glowStrength = Math.max(0.0F, Config.eyeGlowStrength);
+        float effectiveGlowPasses = glowStrength * Math.max(1, Config.eyeGlowPasses);
+        int fullGlowPasses = MathHelper.floor_float(effectiveGlowPasses);
+        float partialGlowPass = effectiveGlowPasses - fullGlowPasses;
+        if (fullGlowPasses <= 0 && partialGlowPass <= 0.0F) {
+            return;
+        }
 
         float aggroColorAdjust = 1;
         if (Config.eyeAggressionDependsOnLightLevel) {
@@ -182,15 +189,15 @@ public class ModelEyes extends ModelBase {
         }
 
         GL11.glEnable(GL11.GL_BLEND);
-        // GL11.glDisable(GL11.GL_ALPHA_TEST);
-
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDepthMask(false);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240, 240);
-
-        /* EXPERIMENTAL */
-        GL11.glColor4f(1, aggroColorAdjust, aggroColorAdjust, mixAlpha);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        int fullBright = 61680;
+        int fullBrightX = fullBright % 65536;
+        int fullBrightY = fullBright / 65536;
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, fullBrightX, fullBrightY);
+        GL11.glColor4f(1.0F, aggroColorAdjust, aggroColorAdjust, mixAlpha);
 
         // Minecraft.getMinecraft().entityRenderer. // something with fog color
 
@@ -207,15 +214,37 @@ public class ModelEyes extends ModelBase {
         final float th = 5 / 32f;
         float hoff = getBlinkTextureOffset(parEntity, parTime, th);
 
-        tessellator.startDrawingQuads();
-        // tessellator.setNormal(0.0F, 0.0F, 1.0F);
+        for (int pass = 0; pass < fullGlowPasses; ++pass) {
+            tessellator.startDrawingQuads();
+            // tessellator.setNormal(0.0F, 0.0F, 1.0F);
 
-        tessellator.addVertexWithUV(-w, -h, 0, 0, hoff + th);
-        tessellator.addVertexWithUV(-w, h, 0, 0, hoff);
-        tessellator.addVertexWithUV(w, h, 0, tw, hoff);
-        tessellator.addVertexWithUV(w, -h, 0, tw, hoff + th);
+            tessellator.addVertexWithUV(-w, -h, 0, 0, hoff + th);
+            tessellator.addVertexWithUV(-w, h, 0, 0, hoff);
+            tessellator.addVertexWithUV(w, h, 0, tw, hoff);
+            tessellator.addVertexWithUV(w, -h, 0, tw, hoff + th);
 
-        tessellator.draw();
+            tessellator.draw();
+        }
+        if (partialGlowPass > 0.0F) {
+            GL11.glColor4f(1.0F, aggroColorAdjust, aggroColorAdjust, mixAlpha * partialGlowPass);
+            tessellator.startDrawingQuads();
+            tessellator.addVertexWithUV(-w, -h, 0, 0, hoff + th);
+            tessellator.addVertexWithUV(-w, h, 0, 0, hoff);
+            tessellator.addVertexWithUV(w, h, 0, tw, hoff);
+            tessellator.addVertexWithUV(w, -h, 0, tw, hoff + th);
+            tessellator.draw();
+        }
+
+        int packedLight = parEntity.getBrightnessForRender(parTime);
+        int packedLightX = packedLight % 65536;
+        int packedLightY = packedLight / 65536;
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, packedLightX, packedLightY);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glDepthMask(true);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         //// head.render(par7);
 

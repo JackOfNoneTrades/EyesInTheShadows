@@ -78,6 +78,8 @@ public class Config {
         public static final float blinkChance = 0.02F;
         public static final int health = 1;
         public static final float scaleFactor = 1F;
+        public static final float eyeGlowStrength = 2F;
+        public static final int eyeGlowPasses = 1;
         public static final int tickBetweenAttacks = 40;
         public static final boolean eyesAttackTamedWolves = false;
         public static final boolean wolvesAttackEyes = true;
@@ -181,6 +183,8 @@ public class Config {
     public static float blinkChance = Defaults.blinkChance;
     public static int health = Defaults.health;
     public static float scaleFactor = Defaults.scaleFactor;
+    public static float eyeGlowStrength = Defaults.eyeGlowStrength;
+    public static int eyeGlowPasses = Defaults.eyeGlowPasses;
     public static boolean eyesAttackTamedWolves = Defaults.eyesAttackTamedWolves;
     public static boolean wolvesAttackEyes = Defaults.wolvesAttackEyes;
     public static boolean mobsAttackDormantEyes = Defaults.mobsAttackDormantEyes;
@@ -219,6 +223,24 @@ public class Config {
                 0.01F,
                 Float.MAX_VALUE);
             scaleFactor = (float) scaleFactorProperty.getDouble();
+
+            Property eyeGlowStrengthProperty = config.get(
+                Categories.visual,
+                "eye_glow_strength",
+                Defaults.eyeGlowStrength,
+                "Emissive glow intensity multiplier for eye rendering.",
+                0F,
+                4F);
+            eyeGlowStrength = (float) eyeGlowStrengthProperty.getDouble();
+
+            Property eyeGlowPassesProperty = config.get(
+                Categories.visual,
+                "eye_glow_passes",
+                Defaults.eyeGlowPasses,
+                "How many additive emissive passes are rendered for eyes.",
+                1,
+                4);
+            eyeGlowPasses = eyeGlowPassesProperty.getInt();
 
             /* Sound */
             Property eyeIdleVolumeProperty = config.get(
