@@ -54,7 +54,7 @@ Original mod showcase by Mischief of Mice:<br>
 `gradlew build`.
 
 ## License
-`LgplV3 + SNEED`, formerly `BSD 3`.
+`LGPLv3`, formerly `BSD 3`.
 
 ## Credits
 * [GT:NH buildscript](https://github.com/GTNewHorizons/ExampleMod1.7.10).
@@ -63,4 +63,4 @@ Original mod showcase by Mischief of Mice:<br>
 
 <br>
 
-![license](images/lgplsneed_small.png)
+![license](images/license_small.png)

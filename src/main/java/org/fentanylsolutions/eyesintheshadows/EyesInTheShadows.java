@@ -21,7 +21,7 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
     name = "Eyes in the Shadows",
     acceptedMinecraftVersions = "[1.7.10]",
     guiFactory = "org.fentanylsolutions." + EyesInTheShadows.MODID + ".gui.GuiFactory",
-    customProperties = { @Mod.CustomProperty(k = "license", v = "LGPLv3+SNEED"),
+    customProperties = { @Mod.CustomProperty(k = "license", v = "LGPLv3"),
         @Mod.CustomProperty(k = "issueTrackerUrl", v = "https://github.com/JackOfNoneTrades/EyesInTheShadows/issues"),
         @Mod.CustomProperty(k = "iconFile", v = "assets/eyesintheshadows/logo.png"),
         @Mod.CustomProperty(k = "backgroundFile", v = "assets/eyesintheshadows/background.png") })
