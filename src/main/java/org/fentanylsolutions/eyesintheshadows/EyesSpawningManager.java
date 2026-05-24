@@ -144,7 +144,8 @@ public class EyesSpawningManager {
     }
 
     private static boolean isDimensionAllowed(World world) {
-        return isNameAllowed(world.getProviderName(), Config.dimensionSpawnNames, Config.dimensionListIsWhitelist);
+        String dimensionName = world.provider != null ? world.provider.getDimensionName() : "";
+        return isNameAllowed(dimensionName, Config.dimensionSpawnNames, Config.dimensionListIsWhitelist);
     }
 
     private static boolean isBiomeAllowed(World world, EntityPlayer player) {
