@@ -11,6 +11,11 @@ import org.fentanylsolutions.eyesintheshadows.entity.entities.EntityEyes;
 
 public class FlyingCreepTowardPlayer extends EntityAIBase {
 
+    private static final double BEHIND_DISTANCE = 4.0D;
+    private static final double BEHIND_CONE_DOT = -0.35D;
+    private static final double VERTICAL_ALIGNMENT_THRESHOLD = 1.25D;
+    private static final double OBSTACLE_DETOUR_DISTANCE = 6.0D;
+
     private final EntityEyes eyes;
     private EntityLivingBase target;
     private int courseChangeCooldown;
@@ -48,6 +53,7 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
     @Override
     public boolean continueExecuting() {
         if (eyes.isPlayerLookingInMyGeneralDirection() || eyes.getBrightness() <= 0) {
+            stopMovement();
             swerving = 0;
             lastDir = -1;
             return false;
@@ -64,9 +70,16 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
 
     @Override
     public void resetTask() {
+        stopMovement();
         this.target = null;
         swerving = 0;
         lastDir = -1;
+    }
+
+    private void stopMovement() {
+        eyes.motionX = 0;
+        eyes.motionY = 0;
+        eyes.motionZ = 0;
     }
 
     private int[] dirToOffset(int dir) {
@@ -86,13 +99,20 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
     private void updateWaypoints() {
         if (target == null) return;
 
-        this.waypointX = target.posX;
-        this.waypointY = target.boundingBox.minY + target.getEyeHeight();
-        this.waypointZ = target.posZ;
-
         Vec3 eyePos = EntityEyes.getPosEyes(eyes);
-        Vec3 targetPos = Vec3
-            .createVectorHelper(target.posX, target.boundingBox.minY + (double) target.getEyeHeight(), target.posZ);
+        double targetEyeY = target.boundingBox.minY + target.getEyeHeight();
+        double[] targetLook = getTargetHorizontalLook();
+
+        if (isBehindTarget(targetLook)) {
+            this.waypointX = target.posX;
+            this.waypointZ = target.posZ;
+        } else {
+            this.waypointX = target.posX - targetLook[0] * BEHIND_DISTANCE;
+            this.waypointZ = target.posZ - targetLook[1] * BEHIND_DISTANCE;
+        }
+        this.waypointY = Config.fly ? targetEyeY - eyes.getEyeHeight() : eyes.posY;
+
+        Vec3 targetPos = Vec3.createVectorHelper(this.waypointX, targetEyeY, this.waypointZ);
 
         boolean canSee = eyes.worldObj.func_147447_a(eyePos, targetPos, false, true, false) == null;
         if (!canSee) {
@@ -103,69 +123,86 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
 
             Vec3 offsetPos = applyDirOffset(eyePos, targetDirection);
 
-            // check up, left, right to see if we can bypass the obstacle
-            offsetPos.yCoord += 15;
-            canSee = eyes.worldObj.func_147447_a(offsetPos, targetPos, false, true, false) == null;
-
-            if (canSee) {
-                swerving = 0;
-                lastDir = -1;
-                this.waypointY += 15;
-                return;
-            }
-
-            offsetPos.yCoord -= 15;
-
             // "SOUTH", "WEST", "NORTH", "EAST"
             if (targetDirection == 0 || targetDirection == 2) {
-                offsetPos.xCoord += 15;
+                offsetPos.xCoord += OBSTACLE_DETOUR_DISTANCE;
 
                 if (swerving == 0 || swerving == 1) {
                     canSee = eyes.worldObj.func_147447_a(offsetPos, targetPos, false, true, false) == null;
                     if (canSee) {
                         swerving = 1;
-                        this.waypointX += 15;
+                        this.waypointX += OBSTACLE_DETOUR_DISTANCE;
                         return;
                     }
                 }
 
-                offsetPos.xCoord -= 30;
+                offsetPos.xCoord -= OBSTACLE_DETOUR_DISTANCE * 2;
 
                 if (swerving == 0 || swerving == -1) {
                     canSee = eyes.worldObj.func_147447_a(offsetPos, targetPos, false, true, false) == null;
                     if (canSee) {
                         swerving = -1;
-                        this.waypointX -= 15;
+                        this.waypointX -= OBSTACLE_DETOUR_DISTANCE;
                         return;
                     }
                 }
             } else {
-                offsetPos.zCoord += 15;
+                offsetPos.zCoord += OBSTACLE_DETOUR_DISTANCE;
 
                 if (swerving == 0 || swerving == 1) {
                     canSee = eyes.worldObj.func_147447_a(offsetPos, targetPos, false, true, false) == null;
                     if (canSee) {
                         swerving = 1;
-                        this.waypointZ += 15;
+                        this.waypointZ += OBSTACLE_DETOUR_DISTANCE;
                         return;
                     }
                 }
 
-                offsetPos.zCoord -= 30;
+                offsetPos.zCoord -= OBSTACLE_DETOUR_DISTANCE * 2;
 
                 if (swerving == 0 || swerving == -1) {
                     canSee = eyes.worldObj.func_147447_a(offsetPos, targetPos, false, true, false) == null;
                     if (canSee) {
                         swerving = -1;
-                        this.waypointZ -= 15;
+                        this.waypointZ -= OBSTACLE_DETOUR_DISTANCE;
                         return;
                     }
+                }
+            }
+
+            if (Config.fly) {
+                offsetPos = applyDirOffset(eyePos, targetDirection);
+                double verticalDetour = targetEyeY < eyePos.yCoord ? -OBSTACLE_DETOUR_DISTANCE
+                    : OBSTACLE_DETOUR_DISTANCE;
+                offsetPos.yCoord += verticalDetour;
+                if (eyes.worldObj.func_147447_a(offsetPos, targetPos, false, true, false) == null) {
+                    swerving = 0;
+                    lastDir = -1;
+                    this.waypointY += verticalDetour;
                 }
             }
         } else {
             swerving = 0;
             lastDir = -1;
         }
+    }
+
+    private double[] getTargetHorizontalLook() {
+        Vec3 look = target.getLookVec();
+        double length = Math.sqrt(look.xCoord * look.xCoord + look.zCoord * look.zCoord);
+        if (length < 1.0E-4D) {
+            double yaw = Math.toRadians(target.rotationYaw);
+            return new double[] { -Math.sin(yaw), Math.cos(yaw) };
+        }
+        return new double[] { look.xCoord / length, look.zCoord / length };
+    }
+
+    private boolean isBehindTarget(double[] targetLook) {
+        double targetToEyesX = eyes.posX - target.posX;
+        double targetToEyesZ = eyes.posZ - target.posZ;
+        double horizontalDistance = Math.sqrt(targetToEyesX * targetToEyesX + targetToEyesZ * targetToEyesZ);
+        return horizontalDistance > 1.0E-4D
+            && (targetToEyesX * targetLook[0] + targetToEyesZ * targetLook[1]) / horizontalDistance < BEHIND_CONE_DOT;
     }
 
     @Override
@@ -189,6 +226,19 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
             double dx = this.waypointX - this.eyes.posX;
             double dy = this.waypointY - this.eyes.posY;
             double dz = this.waypointZ - this.eyes.posZ;
+
+            double eyeY = this.eyes.posY + this.eyes.getEyeHeight();
+            double targetEyeY = target.boundingBox.minY + target.getEyeHeight();
+            if (Config.fly && Math.abs(targetEyeY - eyeY) > VERTICAL_ALIGNMENT_THRESHOLD) {
+                double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
+                double maximumHorizontalComponent = Math.abs(dy) * 0.5D;
+                if (horizontalDistance > maximumHorizontalComponent) {
+                    double horizontalScale = maximumHorizontalComponent / horizontalDistance;
+                    dx *= horizontalScale;
+                    dz *= horizontalScale;
+                }
+            }
+
             double distanceSq = dx * dx + dy * dy + dz * dz;
             double distance = Math.sqrt(distanceSq);
 
@@ -198,7 +248,7 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
                 this.eyes.motionX += (dx / distance) * speedFactor;
                 this.eyes.motionY += (dy / distance) * speedFactor;
                 this.eyes.motionZ += (dz / distance) * speedFactor;
-                this.courseChangeCooldown += 20;
+                this.courseChangeCooldown += 5;
             }
         }
 
@@ -208,7 +258,8 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
 
         this.attackTick = Math.max(this.attackTick - 1, 0);
 
-        if (distanceToTargetSq <= this.attackRangeSq && this.attackTick <= 0) {
+        if (distanceToTargetSq <= this.attackRangeSq && this.attackTick <= 0
+            && isBehindTarget(getTargetHorizontalLook())) {
             this.attackTick = Config.tickBetweenAttacks;
             this.eyes.attackEntityAsMob(target);
         }

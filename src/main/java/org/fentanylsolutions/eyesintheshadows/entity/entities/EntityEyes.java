@@ -49,11 +49,6 @@ public class EntityEyes extends EntityFlying implements IModEntity {
     private boolean blinkingState;
     private float blinkProgress;
 
-    /** Random offset used in floating behaviour */
-    private float heightOffset = 0.5F;
-    /** ticks until heightOffset is randomized */
-    private int heightOffsetUpdateTime;
-
     public final float waveAmplitude = Config.waveMotionMinAmplitude
         + EyesInTheShadows.varInstanceCommon.rand.nextFloat()
             * (Config.waveMotionMaxAmplitude - Config.waveMotionMinAmplitude);
@@ -217,27 +212,6 @@ public class EntityEyes extends EntityFlying implements IModEntity {
                 this.attackEntityFrom(DamageSource.drown, Config.damageFromWet);
             }
 
-            if (Config.fly) {
-                --this.heightOffsetUpdateTime;
-
-                if (this.heightOffsetUpdateTime <= 0) {
-                    this.heightOffsetUpdateTime = 100;
-                    this.heightOffset = 0.5F + (float) this.rand.nextGaussian() * 3.0F;
-                }
-
-                if (this.getAttackTarget() != null && this.getAttackTarget().posY + (double) this.getAttackTarget()
-                    .getEyeHeight() > this.posY + (double) this.getEyeHeight() /* + (double) this.heightOffset */
-                    && this.moveForward > 0) {
-                    this.motionY += 0.1;// (0.30000001192092896D - this.motionY) * 0.30000001192092896D;
-                    this.moveFlying(0, (float) moveForward, 1);
-                }
-            }
-        }
-
-        if (Config.fly) {
-            if (!this.onGround && this.motionY < 0.0D) {
-                this.motionY *= 0.6D;
-            }
         }
 
         float alpha = Util.getEyeRenderingAlpha(this, Config.eyesCanAttackWhileLit);

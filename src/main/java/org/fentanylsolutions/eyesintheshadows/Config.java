@@ -497,7 +497,7 @@ public class Config {
             Categories.eye_aggression,
             "fly",
             Defaults.fly,
-            "While set to true, the eyes will behave more like blazes, flying upwards to targets. This can be buggy.");
+            "Allow Eyes to change altitude while pursuing targets.");
         fly = flyProperty.getBoolean();
 
         /* spawning */
