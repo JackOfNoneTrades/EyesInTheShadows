@@ -34,11 +34,19 @@
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
 dependencies {
-    //runtimeOnlyNonPublishable("com.github.GTNewHorizons:Angelica:2.1.0:dev")
+    // Shared development mod set from Uralte Zauber
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Angelica:2.1.60:dev")
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:Hodgepodge:2.7.186:dev")
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.8.122-GTNH:dev")
     runtimeOnlyNonPublishable("curse.maven:archaicfix-677782:6785842")
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:GTNHLib:0.11.37:dev")
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:ModularUI2:2.3.85-1.7.10:dev")
+    runtimeOnlyNonPublishable("com.falsepattern:forgelin-mc1.7.10:2.4.1-2.3.10")
+    runtimeOnlyNonPublishable("dev.dediamondpro.resourcify:VintageResourcify:1.0.5:dev")
+    runtimeOnlyNonPublishable("org.fentanylsolutions.vrap:vrap:1.0.1:dev")
+    runtimeOnlyNonPublishable(
+        "org.fentanylsolutions.vintagedamageindicators:VintageDamageIndicators:0.9.4:dev")
+    runtimeOnlyNonPublishable("org.fentanylsolutions.wawelauth:WawelAuth:1.0.4:dev")
     runtimeOnlyNonPublishable(rfg.deobf("curse.maven:catalogue-vintage-1465746:8384975")) // 1.0.8-1.7.10
     runtimeOnlyNonPublishable("org.fentanylsolutions.fentlib:FentLib:0.0.54:dev")
 
