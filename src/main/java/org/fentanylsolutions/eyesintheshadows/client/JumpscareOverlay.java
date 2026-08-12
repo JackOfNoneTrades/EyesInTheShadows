@@ -91,10 +91,20 @@ public class JumpscareOverlay extends Gui {
             return;
         }
 
-        int screenWidth = event.resolution.getScaledWidth();
-        int screenHeight = event.resolution.getScaledHeight();
+        int screenWidth = mc.displayWidth;
+        int screenHeight = mc.displayHeight;
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glPushMatrix();
+        GL11.glLoadIdentity();
+        GL11.glOrtho(0.0D, screenWidth, screenHeight, 0.0D, 1000.0D, 3000.0D);
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glPushMatrix();
+        GL11.glLoadIdentity();
+        GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(false);
         try {
             float darkening = MathHelper
                 .clamp_float(Math.min(time / ANIMATION_APPEAR, (ANIMATION_TOTAL - time) / ANIMATION_FADE), 0, 1);
@@ -183,6 +193,10 @@ public class JumpscareOverlay extends Gui {
             GL11.glDisable(GL11.GL_ALPHA_TEST);
 
         } finally {
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glPopMatrix();
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glPopMatrix();
             GL11.glPopAttrib();
         }
     }
