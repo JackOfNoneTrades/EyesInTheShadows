@@ -28,10 +28,9 @@ public class TimeUtil {
         int difference = desiredDay - today;
 
         /**
-         * If the desiredDay has passed already, or it's currently the
-         * desiredDay, we need to recalculate the difference.
+         * If the desiredDay has passed already, we need to recalculate the difference.
          */
-        if (difference <= 0) {
+        if (difference < 0) {
             /**
              * We start by getting the days until the end of the year.
              */

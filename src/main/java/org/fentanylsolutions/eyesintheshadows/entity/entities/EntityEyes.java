@@ -33,7 +33,6 @@ import org.fentanylsolutions.eyesintheshadows.entity.EyeSenses;
 import org.fentanylsolutions.eyesintheshadows.entity.IModEntity;
 import org.fentanylsolutions.eyesintheshadows.mixins.early.minecraft.AccessorEntityLiving;
 import org.fentanylsolutions.eyesintheshadows.packet.PacketHandler;
-import org.fentanylsolutions.eyesintheshadows.packet.PacketUtil;
 import org.fentanylsolutions.eyesintheshadows.packet.packets.InitiateJumpscarePacket;
 import org.fentanylsolutions.eyesintheshadows.util.TraceUtil;
 import org.fentanylsolutions.eyesintheshadows.util.Util;
@@ -42,7 +41,13 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 public class EntityEyes extends EntityFlying implements IModEntity {
 
-    private NBTTagCompound syncDataCompound = new NBTTagCompound();
+    private static final int DATA_SCALE_FACTOR = 20;
+    private static final int DATA_BRIGHTNESS = 21;
+    private static final int DATA_AGGRO = 22;
+    private static final int DATA_TARGET_ID = 23;
+
+    private boolean blinkingState;
+    private float blinkProgress;
 
     /** Random offset used in floating behaviour */
     private float heightOffset = 0.5F;
@@ -66,7 +71,6 @@ public class EntityEyes extends EntityFlying implements IModEntity {
                 EyesInTheShadows.varInstanceCommon.rand.nextFloat() * worldObj.difficultySetting.getDifficultyId()
                     / 10);
         }
-        initSyncDataCompound();
         setupAI();
         ((AccessorEntityLiving) this).setSenses(new EyeSenses(this));
     }
@@ -74,6 +78,10 @@ public class EntityEyes extends EntityFlying implements IModEntity {
     @Override
     protected void entityInit() {
         super.entityInit();
+        dataWatcher.addObject(DATA_SCALE_FACTOR, 1.0F);
+        dataWatcher.addObject(DATA_BRIGHTNESS, 0.0F);
+        dataWatcher.addObject(DATA_AGGRO, 0.0F);
+        dataWatcher.addObject(DATA_TARGET_ID, -1);
         this.experienceValue = 5;
     }
 
@@ -234,25 +242,27 @@ public class EntityEyes extends EntityFlying implements IModEntity {
 
         float alpha = Util.getEyeRenderingAlpha(this, Config.eyesCanAttackWhileLit);
 
-        setEyeBrightness(alpha);
+        if (!worldObj.isRemote) {
+            setEyeBrightness(alpha);
+        }
         // EyesInTheShadows.debug("Looking in my dir: " + isPlayerLookingInMyGeneralDirection(this));
 
-        // if(worldObj != null && worldObj.isRemote) {
-        if (!getBlinkingState()) {
-            if (EyesInTheShadows.varInstanceCommon.rand.nextFloat() < Config.blinkChance / 10) {
-                setBlinkingState(true);
-                setBlinkProgress(0);
-            }
-        } else {
-            setBlinkProgress(getBlinkProgress() + 1);
-            if (getBlinkProgress() >= Config.blinkDuration) {
-                setBlinkingState(false);
+        if (worldObj.isRemote && Config.blinkDuration > 1) {
+            if (!getBlinkingState()) {
+                if (rand.nextFloat() < Config.blinkChance / 10) {
+                    setBlinkingState(true);
+                    setBlinkProgress(0);
+                }
+            } else {
+                setBlinkProgress(getBlinkProgress() + 1);
+                if (getBlinkProgress() >= Config.blinkDuration) {
+                    setBlinkingState(false);
+                }
             }
         }
-        // }
 
         /* Making eyes disappear if a player looks at them */
-        if (worldObj != null && alpha > 0) {
+        if (!worldObj.isRemote && alpha > 0) {
             Vec3 eyePosEyes = getPosEyes(this);
             if (getBrightness() > 0) {
                 float maxWatchDistance = Config.watchDistance;
@@ -288,52 +298,15 @@ public class EntityEyes extends EntityFlying implements IModEntity {
                         continue;
                     }
 
-                    Vec3 planePos = Vec3.createVectorHelper(this.posX, this.posY + getEyeHeight(), this.posZ);
-                    Vec3 vec3 = player.getLook(1.0F)
+                    Vec3 look = player.getLook(1.0F)
                         .normalize();
-                    float width = 0.25f;
-                    float height = width * 5.f / 13f;
-                    Vec3 planeNormal = vec3.subtract(planePos)
-                        .normalize();
-                    double denom = planeNormal.dotProduct(vec3);
-                    double approxHitDist = -1;
-                    if (Math.abs(denom) > 1e-6) { // Make sure not parallel
-                        Vec3 diff = planePos.subtract(playerPosEyes);
-                        double t = Math.abs(diff.dotProduct(planeNormal) / denom);
-
-                        Vec3 hitPoint = playerPosEyes.addVector(vec3.xCoord * t, vec3.yCoord * t, vec3.zCoord * t);
-
-                        // TODO: for better accuracy find actual x and y delta
-                        // Step 2: Check if hitPoint is within bounding box of the plane
-                        // Transform hitPoint into local 2D coordinates relative to plane center and axes
-                        // For example, use right and up vectors of the plane:
-
-                        // Vec3 right = ...; // e.g., a vector along the width
-                        // Vec3 up = ...; // a vector along the height
-
-                        // Vec3 local = hitPoint.subtract(planePos);
-                        // double xDist = local.dotProduct(right);
-                        // double yDist = local.dotProduct(up);
-
-                        // if (Math.abs(xDist) <= width / 2 && Math.abs(yDist) <= height / 2) {
-                        // ✅ Hit is inside the bounds of the plane
-                        // }
-                        approxHitDist = hitPoint.distanceTo(planePos);
-                    }
-
-                    // Old code
-                    /*
-                     * Vec3 vec31 = Vec3.createVectorHelper(
-                     * this.posX - player.posX,
-                     * (this.posY + getEyeHeight())
-                     * - (player.posY + (double) player.getEyeHeight()),
-                     * this.posZ - player.posZ);
-                     * double d0 = vec31.lengthVector();
-                     * vec31 = vec31.normalize();
-                     * double d1 = vec3.dotProduct(vec31);
-                     * shouldDisappear = d1 > 1.0D - 0.025D / d0 && player.canEntityBeSeen(this);
-                     */
-                    shouldDisappear = approxHitDist <= width
+                    Vec3 toEyes = Vec3.createVectorHelper(
+                        this.posX - player.posX,
+                        this.posY + getEyeHeight() - (player.posY + player.getEyeHeight()),
+                        this.posZ - player.posZ);
+                    double distance = toEyes.lengthVector();
+                    double lookAlignment = distance > 0 ? look.dotProduct(toEyes.normalize()) : 1;
+                    shouldDisappear = lookAlignment > 1.0D - 0.025D / Math.max(distance, 0.001D)
                         && TraceUtil.canEntityBeSeenIgnoreWithoutBoundingBox(player, this);
 
                     if (shouldDisappear) {
@@ -353,7 +326,7 @@ public class EntityEyes extends EntityFlying implements IModEntity {
             }
         }
 
-        if (Config.enableEyeAggressionEscalation && alpha > 0) {
+        if (!worldObj.isRemote && Config.enableEyeAggressionEscalation && alpha > 0) {
             if (!isPlayerLookingInMyGeneralDirection() && this.getAttackTarget() != null) {
                 setAggroLevel(getAggroLevel() + Config.aggroEscalationPerTick);
                 if (Config.eyeAggressionDependsOnLightLevel) {
@@ -493,122 +466,65 @@ public class EntityEyes extends EntityFlying implements IModEntity {
 
     @Override
     public void setScaleFactor(float parScaleFactor) {
-        syncDataCompound.setFloat("scaleFactor", Math.abs(parScaleFactor));
-
-        // don't forget to sync client and server
-        sendEntitySyncPacket();
+        dataWatcher.updateObject(DATA_SCALE_FACTOR, Math.abs(parScaleFactor));
     }
 
     @Override
     public float getScaleFactor() {
-        return syncDataCompound.getFloat("scaleFactor");
+        return dataWatcher.getWatchableObjectFloat(DATA_SCALE_FACTOR);
     }
 
     public void setBlinkingState(boolean value) {
-        syncDataCompound.setBoolean("blinkingState", value);
-        sendEntitySyncPacket();
+        blinkingState = value;
     }
 
     public boolean getBlinkingState() {
-        return syncDataCompound.getBoolean("blinkingState");
+        return blinkingState;
     }
 
     public void setBlinkProgress(float value) {
-        syncDataCompound.setFloat("blinkProgress", value);
-        sendEntitySyncPacket();
+        blinkProgress = value;
     }
 
     public float getBlinkProgress() {
-        return syncDataCompound.getFloat("blinkProgress");
+        return blinkProgress;
     }
 
     public void setEyeBrightness(float brightness) {
-        syncDataCompound.setFloat("brightness", brightness);
-        sendEntitySyncPacket();
+        dataWatcher.updateObject(DATA_BRIGHTNESS, brightness);
     }
 
     public float getBrightness() {
-        return syncDataCompound.getFloat("brightness");
+        return dataWatcher.getWatchableObjectFloat(DATA_BRIGHTNESS);
     }
 
     public void setAggroLevel(float aggro) {
-        syncDataCompound.setFloat("aggro", MathHelper.clamp_float(aggro, 0, 1));
-        sendEntitySyncPacket();
+        dataWatcher.updateObject(DATA_AGGRO, MathHelper.clamp_float(aggro, 0, 1));
     }
 
     public float getAggroLevel() {
-        return syncDataCompound.getFloat("aggro");
+        return dataWatcher.getWatchableObjectFloat(DATA_AGGRO);
     }
-
-    @Override
-    public void sendEntitySyncPacket() {
-        PacketUtil.sendEntitySyncPacketToClient(this);
-    }
-
-    @Override
-    public NBTTagCompound getSyncDataCompound() {
-        return syncDataCompound;
-    }
-
-    @Override
-    public void setSyncDataCompound(NBTTagCompound parCompound) {
-        syncDataCompound = parCompound;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.blogspot.jabelarminecraft.wildanimals.entities.IModEntity#initSyncDataCompound()
-     */
-    @Override
-    public void initSyncDataCompound() {
-        syncDataCompound.setFloat("scaleFactor", 1F);
-        syncDataCompound.setInteger("targetId", -1);
-        // syncDataCompound.setBoolean("hasTarget", false);
-        // syncDataCompound.setDouble("targetX", 0);
-        // syncDataCompound.setDouble("targetY", 0);
-        // syncDataCompound.setDouble("targetZ", 0);
-    }
-
-    /*
-     * public Vec3 getTargetPosition() {
-     * if (syncDataCompound.getBoolean("hasTarget")) {
-     * return Vec3.createVectorHelper(
-     * syncDataCompound.getDouble("targetX"),
-     * syncDataCompound.getDouble("targetY"),
-     * syncDataCompound.getDouble("targetZ"));
-     * }
-     * return null;
-     * }
-     */
 
     public int getTargetId() {
-        return syncDataCompound.getInteger("targetId");
+        return dataWatcher.getWatchableObjectInt(DATA_TARGET_ID);
     }
 
     public double getSpeedFromAggro() {
         if (Util.getEyeRenderingAlpha(this, Config.eyesCanAttackWhileLit) <= 0) {
             return 0;
         }
-        // return Config.speedNoAggro + (Config.speedFullAggro - Config.speedNoAggro) * getAggroLevel();
-        return Util.clampedLerp(getAggroLevel(), Config.speedNoAggro, Config.speedFullAggro);
+        return Util.clampedLerp(Config.speedNoAggro, Config.speedFullAggro, getAggroLevel());
     }
 
     @Override
     public void setAttackTarget(EntityLivingBase entity) {
         super.setAttackTarget(entity);
         if (entity == null) {
-            syncDataCompound.setInteger("targetId", -1);
+            dataWatcher.updateObject(DATA_TARGET_ID, -1);
         } else {
-            syncDataCompound.setInteger("targetId", entity.getEntityId());
+            dataWatcher.updateObject(DATA_TARGET_ID, entity.getEntityId());
         }
-        /*
-         * syncDataCompound.setBoolean("hasTarget", entity != null);
-         * if (entity != null) {
-         * syncDataCompound.setDouble("targetX", entity.posX);
-         * syncDataCompound.setDouble("targetY", entity.boundingBox.minY + entity.getEyeHeight());
-         * syncDataCompound.setDouble("targetZ", entity.posZ);
-         * }
-         */
     }
 
     @Override
@@ -618,7 +534,7 @@ public class EntityEyes extends EntityFlying implements IModEntity {
 
     @Override
     protected String getLivingSound() {
-        if (syncDataCompound.getBoolean("hasTarget") && !isPlayerLookingInMyGeneralDirection()) {
+        if (getTargetId() >= 0 && !isPlayerLookingInMyGeneralDirection()) {
             return null;
         }
         return EyesInTheShadows.varInstanceCommon.laughSound;

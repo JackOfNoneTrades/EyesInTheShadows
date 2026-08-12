@@ -14,7 +14,6 @@ import org.fentanylsolutions.eyesintheshadows.mixins.early.minecraft.AccessorDim
 import org.fentanylsolutions.eyesintheshadows.util.BiomeUtil;
 import org.fentanylsolutions.eyesintheshadows.util.DimensionUtil;
 import org.fentanylsolutions.eyesintheshadows.util.MobUtil;
-import org.fentanylsolutions.eyesintheshadows.util.TimeUtil;
 import org.fentanylsolutions.eyesintheshadows.util.XSTR;
 
 import cpw.mods.fml.common.Loader;
@@ -40,7 +39,6 @@ public class VarInstanceCommon {
     public Hashtable<Integer, Class<? extends WorldProvider>> providers;
 
     public boolean witcheryLoaded;
-    public int daysUntilHalloween = TimeUtil.getDaysUntilNextHalloween();
 
     public VarInstanceCommon() {}
 
@@ -69,7 +67,7 @@ public class VarInstanceCommon {
     }
 
     public void buildBiomeList() {
-        dimensionList = new HashMap<>();
+        biomeList = new HashMap<>();
         for (String s : Config.biomeSpawnNames) {
             for (BiomeGenBase b : BiomeUtil.getBiomeList()) {
                 if (s.equals(b.biomeName)) {

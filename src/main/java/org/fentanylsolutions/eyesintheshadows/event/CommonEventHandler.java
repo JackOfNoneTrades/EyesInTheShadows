@@ -21,6 +21,9 @@ public class CommonEventHandler {
     @SuppressWarnings("unused")
     @SubscribeEvent
     public void onEntitySpawn(EntityJoinWorldEvent event) {
+        if (event.world.isRemote) {
+            return;
+        }
         if (event.entity instanceof EntityCreature) {
             handleAITasks((EntityCreature) event.entity, event);
         }
@@ -56,7 +59,7 @@ public class CommonEventHandler {
                 EyesInTheShadows.debug(
                     "Adding FleeEyes AI to " + e.getClass()
                         .getCanonicalName());
-                e.targetTasks.addTask(3, new FleeEyes(e, EntityEyes.class, 6.0F, 1.0D, 1.2D));
+                e.tasks.addTask(3, new FleeEyes(e, EntityEyes.class, 6.0F, 1.0D, 1.2D));
             }
         }
     }

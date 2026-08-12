@@ -56,6 +56,7 @@ public class JumpscareOverlay extends Gui {
 
     public void show(double ex, double ey, double ez) {
         visible = true;
+        progress = 0;
         mc.getSoundHandler()
             .playSound(
                 PositionedSoundRecord.func_147674_a(
@@ -65,6 +66,9 @@ public class JumpscareOverlay extends Gui {
 
     @SubscribeEvent
     public void clientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         if (visible) {
             progress++;
             if (progress >= ANIMATION_TOTAL) {
@@ -80,28 +84,6 @@ public class JumpscareOverlay extends Gui {
             return;
         }
 
-        int screenWidth = mc.displayWidth;
-        int screenHeight = mc.displayHeight;
-
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
-
-        GL11.glClear(256);
-        // GlStateManager.clear(256);
-        GL11.glMatrixMode(5889);
-        // GlStateManager.matrixMode(5889);
-        GL11.glLoadIdentity();
-        // GlStateManager.loadIdentity();
-        GL11.glOrtho(0.0D, screenWidth, screenHeight, 0.0D, 1000.0D, 3000.0D);
-        // GlStateManager.ortho(0.0D, screenWidth, screenHeight, 0.0D, 1000.0D, 3000.0D);
-        GL11.glMatrixMode(5888);
-        // GlStateManager.matrixMode(5888);
-        GL11.glLoadIdentity();
-        // GlStateManager.loadIdentity();
-        GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
-        // GlStateManager.translate(0.0F, 0.0F, -2000.0F);
-
-        // GL11.glEnable(GL11.GL_ALPHA_TEST);
-
         float time = progress + event.partialTicks;
         if (time >= ANIMATION_TOTAL) {
             visible = false;
@@ -109,93 +91,100 @@ public class JumpscareOverlay extends Gui {
             return;
         }
 
-        float darkening = MathHelper
-            .clamp_float(Math.min(time / ANIMATION_APPEAR, (ANIMATION_TOTAL - time) / ANIMATION_FADE), 0, 1);
+        int screenWidth = event.resolution.getScaledWidth();
+        int screenHeight = event.resolution.getScaledHeight();
 
-        boolean showCreep = false;
-        int blinkstate = 0;
-        if (time >= ANIMATION_BLINK_START) {
-            if (time >= ANIMATION_SCARE_START) {
-                blinkstate = 1;
-                showCreep = (time - ANIMATION_SCARE_START) > ANIMATION_SCARE1;
-            } else {
-                float fade = Math.max(0, (time - ANIMATION_BLINK_START) / ANIMATION_BLINK);
-                float blinkspeed = (float) (1 + Math.pow(fade, 3));
-                blinkstate = MathHelper.floor_float(20 * blinkspeed) & 1;
-                showCreep = blinkstate == 1;
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+        try {
+            float darkening = MathHelper
+                .clamp_float(Math.min(time / ANIMATION_APPEAR, (ANIMATION_TOTAL - time) / ANIMATION_FADE), 0, 1);
+
+            boolean showCreep = false;
+            int blinkstate = 0;
+            if (time >= ANIMATION_BLINK_START) {
+                if (time >= ANIMATION_SCARE_START) {
+                    blinkstate = 1;
+                    showCreep = (time - ANIMATION_SCARE_START) > ANIMATION_SCARE1;
+                } else {
+                    float fade = Math.max(0, (time - ANIMATION_BLINK_START) / ANIMATION_BLINK);
+                    float blinkspeed = (float) (1 + Math.pow(fade, 3));
+                    blinkstate = MathHelper.floor_float(20 * blinkspeed) & 1;
+                    showCreep = blinkstate == 1;
+                }
             }
-        }
 
-        int alpha = MathHelper.floor_double(darkening * 255);
+            int alpha = MathHelper.floor_double(darkening * 255);
 
-        if (showCreep) {
-            int texW = 2048;
-            int texH = 1024;
+            if (showCreep) {
+                int texW = 2048;
+                int texH = 1024;
 
-            float scale1 = screenHeight / (float) texH;
-            int drawY = 0;
-            int drawH = screenHeight;
-            int drawW = MathHelper.floor_float(texW * scale1);
-            int drawX = (screenWidth - drawW) / 2;
-            GL11.glEnable(GL11.GL_BLEND);
+                float scale1 = screenHeight / (float) texH;
+                int drawY = 0;
+                int drawH = screenHeight;
+                int drawW = MathHelper.floor_float(texW * scale1);
+                int drawX = (screenWidth - drawW) / 2;
+                GL11.glEnable(GL11.GL_BLEND);
 
-            GL11.glColor4f(1, 1, 1, alpha);
+                GL11.glColor4f(1, 1, 1, alpha / 255.0F);
 
-            drawScaledCustomTexture(
-                TEXTURE_FLASH,
-                texW,
-                texH,
-                0,
-                0,
-                texW,
-                texH,
-                drawX,
-                drawY,
-                drawW,
-                drawH,
-                (alpha << 24) | 0xFFFFFF);
-            GL11.glFlush();
-        } else {
-            drawRect(0, 0, screenWidth, screenHeight, alpha << 24);
-            GL11.glColor4f(1, 1, 1, 1);
-            GL11.glEnable(GL11.GL_BLEND);
-        }
+                drawScaledCustomTexture(
+                    TEXTURE_FLASH,
+                    texW,
+                    texH,
+                    0,
+                    0,
+                    texW,
+                    texH,
+                    drawX,
+                    drawY,
+                    drawW,
+                    drawH,
+                    (alpha << 24) | 0xFFFFFF);
+                GL11.glFlush();
+            } else {
+                drawRect(0, 0, screenWidth, screenHeight, alpha << 24);
+                GL11.glColor4f(1, 1, 1, 1);
+                GL11.glEnable(GL11.GL_BLEND);
+            }
 
-        if (blinkstate == 1) {
+            if (blinkstate == 1) {
+                return;
+            }
+
+            float scale = Float.MAX_VALUE;
+            for (Rectangle r : FRAMES) {
+                float s = Math.min(
+                    MathHelper.floor_double(screenWidth * 0.8 / (float) r.getWidth()),
+                    MathHelper.floor_double(screenHeight * 0.8 / (float) r.getHeight()));
+                scale = Math.min(scale, s);
+            }
+
+            scale = Math.min(1, (1 + time) / (1 + ANIMATION_APPEAR)) * scale;
+
+            int currentFrame = Math
+                .min(FRAMES.length - 1, MathHelper.floor_float(FRAMES.length * time / ANIMATION_APPEAR));
+
+            Rectangle rect = FRAMES[currentFrame];
+            int tx = rect.getX();
+            int ty = rect.getY();
+            int tw = rect.getWidth();
+            int th = rect.getHeight();
+
+            float drawW = (tw) * scale;
+            float drawH = (th) * scale;
+            float drawX = ((screenWidth - drawW) / 2.0f);
+            float drawY = ((screenHeight - drawH) / 2.0f);
+
+            float texW = 32;
+            float texH = 32;
+            drawScaledCustomTexture(TEXTURE_EYES, texW, texH, tx, ty, tw, th, drawX, drawY, drawW, drawH);
+
+            GL11.glDisable(GL11.GL_ALPHA_TEST);
+
+        } finally {
             GL11.glPopAttrib();
-            return;
         }
-
-        float scale = Float.MAX_VALUE;
-        for (Rectangle r : FRAMES) {
-            float s = Math.min(
-                MathHelper.floor_double(screenWidth * 0.8 / (float) r.getWidth()),
-                MathHelper.floor_double(screenHeight * 0.8 / (float) r.getHeight()));
-            scale = Math.min(scale, s);
-        }
-
-        scale = Math.min(1, (1 + time) / (1 + ANIMATION_APPEAR)) * scale;
-
-        int currentFrame = Math.min(FRAMES.length - 1, MathHelper.floor_float(FRAMES.length * time / ANIMATION_APPEAR));
-
-        Rectangle rect = FRAMES[currentFrame];
-        int tx = rect.getX();
-        int ty = rect.getY();
-        int tw = rect.getWidth();
-        int th = rect.getHeight();
-
-        float drawW = (tw) * scale;
-        float drawH = (th) * scale;
-        float drawX = ((screenWidth - drawW) / 2.0f);
-        float drawY = ((screenHeight - drawH) / 2.0f);
-
-        float texW = 32;
-        float texH = 32;
-        drawScaledCustomTexture(TEXTURE_EYES, texW, texH, tx, ty, tw, th, drawX, drawY, drawW, drawH);
-
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-
-        GL11.glPopAttrib();
     }
 
     private void drawScaledCustomTexture(ResourceLocation tex, float texW, float texH, int tx, int ty, int tw, int th,

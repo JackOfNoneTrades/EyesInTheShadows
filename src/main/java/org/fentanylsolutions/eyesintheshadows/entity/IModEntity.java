@@ -7,8 +7,6 @@
 
 package org.fentanylsolutions.eyesintheshadows.entity;
 
-import net.minecraft.nbt.NBTTagCompound;
-
 public interface IModEntity {
 
     // set up AI tasks
@@ -16,16 +14,6 @@ public interface IModEntity {
 
     // use clear tasks for subclasses then build up their ai task list specifically
     void clearAITasks();
-
-    // initialize the tag compound used for syncing custom entity data
-    void initSyncDataCompound();
-
-    NBTTagCompound getSyncDataCompound();
-
-    void setSyncDataCompound(NBTTagCompound parCompound);
-
-    // method to send sync of extended properties from server to clients
-    void sendEntitySyncPacket();
 
     // common encapsulation methods
     void setScaleFactor(float parScaleFactor);

@@ -479,7 +479,7 @@ public class Config {
             Categories.eye_aggression,
             "tickBetweenAttacks",
             Defaults.tickBetweenAttacks,
-            "Ticks between each eye attack on non player mobs.",
+            "Ticks between eye attacks.",
             1,
             Integer.MAX_VALUE);
         tickBetweenAttacks = tickBetweenAttacksProperty.getInt();

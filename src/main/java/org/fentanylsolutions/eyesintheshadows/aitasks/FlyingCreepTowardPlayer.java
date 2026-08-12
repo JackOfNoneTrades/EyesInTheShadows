@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Vec3;
 
+import org.fentanylsolutions.eyesintheshadows.Config;
 import org.fentanylsolutions.eyesintheshadows.entity.entities.EntityEyes;
 
 public class FlyingCreepTowardPlayer extends EntityAIBase {
@@ -89,14 +90,14 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
         this.waypointY = target.boundingBox.minY + target.getEyeHeight();
         this.waypointZ = target.posZ;
 
-        Vec3 eyePos = Vec3.createVectorHelper(eyes.posX, eyes.boundingBox.minY - 0.5, eyes.posZ);
+        Vec3 eyePos = EntityEyes.getPosEyes(eyes);
         Vec3 targetPos = Vec3
             .createVectorHelper(target.posX, target.boundingBox.minY + (double) target.getEyeHeight(), target.posZ);
 
         boolean canSee = eyes.worldObj.func_147447_a(eyePos, targetPos, false, true, false) == null;
         if (!canSee) {
             Vec3 eyeLookVec = eyePos.subtract(targetPos);
-            int targetDirection = lastDir == -1 ? Direction.getMovementDirection(eyeLookVec.xCoord, eyeLookVec.yCoord)
+            int targetDirection = lastDir == -1 ? Direction.getMovementDirection(eyeLookVec.xCoord, eyeLookVec.zCoord)
                 : lastDir;
             lastDir = targetDirection;
 
@@ -208,7 +209,7 @@ public class FlyingCreepTowardPlayer extends EntityAIBase {
         this.attackTick = Math.max(this.attackTick - 1, 0);
 
         if (distanceToTargetSq <= this.attackRangeSq && this.attackTick <= 0) {
-            this.attackTick = 20;
+            this.attackTick = Config.tickBetweenAttacks;
             this.eyes.attackEntityAsMob(target);
         }
     }

@@ -1,9 +1,10 @@
 package org.fentanylsolutions.eyesintheshadows;
 
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
@@ -24,10 +25,14 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 
 public class EyesSpawningManager {
 
-    private final Stopwatch watch = Stopwatch.createUnstarted();
-    // private final ServerChunkCache chunkSource;
-    private int cooldown;
-    private int ticks;
+    private final Map<World, SpawnState> states = new WeakHashMap<>();
+
+    private static class SpawnState {
+
+        private final Stopwatch watch = Stopwatch.createUnstarted();
+        private int cooldown;
+        private int ticks;
+    }
 
     public EyesSpawningManager() {}
 
@@ -48,11 +53,12 @@ public class EyesSpawningManager {
     }
 
     private void tick(World world) {
-        if (--cooldown > 0) {
+        SpawnState state = states.computeIfAbsent(world, ignored -> new SpawnState());
+        if (--state.cooldown > 0) {
             return;
         }
 
-        cooldown = 150;
+        state.cooldown = 150;
 
         if (!Config.enableNaturalSpawn || !world.getGameRules()
             .getGameRuleBooleanValue("doMobSpawning")) {
@@ -68,14 +74,15 @@ public class EyesSpawningManager {
         }
 
         try {
-            watch.start();
+            state.watch.reset()
+                .start();
 
-            ticks++;
+            state.ticks++;
 
-            int daysUntilNextHalloween = EyesInTheShadows.varInstanceCommon.daysUntilHalloween;
+            int daysUntilNextHalloween = TimeUtil.getDaysUntilNextHalloween();
             int minutesToMidnight = TimeUtil.getMinutesToMidnight();
 
-            cooldown = calculateSpawnCycleInterval(daysUntilNextHalloween, minutesToMidnight);
+            state.cooldown = calculateSpawnCycleInterval(daysUntilNextHalloween, minutesToMidnight);
 
             int maxTotalEyesPerDimension = calculateMaxTotalEyesPerDimension(daysUntilNextHalloween, minutesToMidnight);
             int maxEyesAroundPlayer = calculateMaxEyesAroundPlayer(daysUntilNextHalloween, minutesToMidnight);
@@ -91,7 +98,7 @@ public class EyesSpawningManager {
             List<EntityPlayer> players = world.playerEntities;
             int wrap = Math.min(players.size(), 20);
             for (EntityPlayer player : players) {
-                if (((player.getEntityId() + ticks) % wrap) == 0 && !player.capabilities.isCreativeMode) {
+                if (((player.getEntityId() + state.ticks) % wrap) == 0 && !player.capabilities.isCreativeMode) {
                     AxisAlignedBB searchBox = AxisAlignedBB.getBoundingBox(
                         player.posX - d,
                         player.posY - d,
@@ -108,20 +115,6 @@ public class EyesSpawningManager {
                         }
                     }
 
-                    if (Config.spawnUnderCover
-                        && world.canBlockSeeTheSky((int) player.posX, (int) player.posY, (int) player.posZ)) {
-                        continue;
-                    }
-
-                    if (Util.getBrightnessAtCoord(world, (int) player.posX, (int) player.posY, (int) player.posZ, false)
-                        > Config.maxSpawnLightLevel) {
-                        continue;
-                    }
-
-                    if (!isBiomeAllowed(world, player)) {
-                        continue;
-                    }
-
                     if (nearbyCount < maxEyesAroundPlayer) {
                         spawnOneAround(
                             Vec3.createVectorHelper(player.posX, player.posY, player.posZ),
@@ -132,15 +125,14 @@ public class EyesSpawningManager {
             }
 
         } finally {
-            watch.stop();
+            state.watch.stop();
 
-            long elapsedMs = watch.elapsed(TimeUnit.MILLISECONDS);
+            long elapsedMs = state.watch.elapsed(TimeUnit.MILLISECONDS);
             if (elapsedMs > Config.spawnCycleSpawnWarningTime) {
                 EyesInTheShadows.LOG.warn("WARNING: Unexpectedly long spawn cycle. It ran for " + elapsedMs + "ms!");
             }
+            state.watch.reset();
         }
-
-        watch.reset();
     }
 
     private static boolean isDimensionAllowed(World world) {
@@ -148,8 +140,8 @@ public class EyesSpawningManager {
         return isNameAllowed(dimensionName, Config.dimensionSpawnNames, Config.dimensionListIsWhitelist);
     }
 
-    private static boolean isBiomeAllowed(World world, EntityPlayer player) {
-        String biomeName = world.getBiomeGenForCoords((int) player.posX, (int) player.posZ).biomeName;
+    private static boolean isBiomeAllowed(World world, int x, int z) {
+        String biomeName = world.getBiomeGenForCoords(x, z).biomeName;
         return isNameAllowed(biomeName, Config.biomeSpawnNames, Config.biomeListIsWhitelist);
     }
 
@@ -245,12 +237,10 @@ public class EyesSpawningManager {
             double pZ = pos[2] + 0.5D;
 
             double distanceSq = player.getDistanceSq(pX, pY, pZ);
-            EntityEyes entity = new EntityEyes(player.worldObj);
-            if (distanceSq < dSqr && isValidSpawnSpot(player.worldObj, entity, pos, distanceSq)) {
+            if (distanceSq < dSqr && isValidSpawnSpot(player.worldObj, pos, distanceSq)) {
+                EntityEyes entity = new EntityEyes(player.worldObj);
                 // EyesInTheDarkness.EYES.get().create(player.worldObj, null, null, null, pos, MobSpawnType.NATURAL,
                 // false, false);
-                if (entity == null) continue;
-
                 /*
                  * int canSpawn = net.minecraftforge.common.ForgeHooks. canEntitySpawn(entity, player.worldObj, pX, pY,
                  * pZ, null, MobSpawnType.NATURAL);
@@ -265,12 +255,12 @@ public class EyesSpawningManager {
                 // We are adding 1 to Y so the eyes spawn 1 block above ground. We cant pass Y + 1 to
                 // canCreatureTypeSpawnAtLocation because it can only spawn stuff on the ground
                 entity.setPosition(pX, pY + 1, pZ);
+                entity.onSpawnWithEgg(null);
                 EyesInTheShadows.debug("Spawned eyes @ {" + pX + ";" + pY + ";" + pZ + "}");
                 player.worldObj.spawnEntityInWorld(entity);
 
                 return;
             }
-            entity.setDead();
         }
     }
 
@@ -300,28 +290,27 @@ public class EyesSpawningManager {
         return -1;
     }
 
-    private static boolean isValidSpawnSpot(World serverWorld, EntityLivingBase entity, double[] pos,
-        double sqrDistanceToClosestPlayer) {
-        int instantDespawnDistance = 1024; /* EntityLiving, despawnEntity() */
+    private static boolean isValidSpawnSpot(World serverWorld, double[] pos, double sqrDistanceToClosestPlayer) {
+        int x = (int) pos[0];
+        int y = (int) pos[1];
+        int z = (int) pos[2];
+        int instantDespawnDistance = 128;
         if (sqrDistanceToClosestPlayer > (instantDespawnDistance * instantDespawnDistance)) {
             return false;
         }
 
-        /*
-         * if (!BiomeRules.isBiomeAllowed(serverWorld, serverWorld.getBiome(pos)))
-         * {
-         * return false;
-         * }
-         */
+        if (!isBiomeAllowed(serverWorld, x, z)) {
+            return false;
+        }
 
-        // return SpawnPlacements.checkSpawnRules(entity, serverWorld, MobSpawnType.NATURAL, pos, serverWorld.random)
-        // && serverWorld.noCollision(entity.getAABB(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D));
+        if (Config.spawnUnderCover && serverWorld.canBlockSeeTheSky(x, y + 1, z)) {
+            return false;
+        }
 
-        return SpawnerAnimals.canCreatureTypeSpawnAtLocation(
-            EnumCreatureType.monster,
-            serverWorld,
-            (int) pos[0],
-            (int) pos[1],
-            (int) pos[2]);
+        if (Util.getBrightnessAtCoord(serverWorld, x, y + 1, z, false) > Config.maxSpawnLightLevel) {
+            return false;
+        }
+
+        return SpawnerAnimals.canCreatureTypeSpawnAtLocation(EnumCreatureType.monster, serverWorld, x, y, z);
     }
 }

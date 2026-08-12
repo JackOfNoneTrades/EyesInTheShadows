@@ -4,6 +4,8 @@ import net.minecraft.entity.EntityFlying;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 
+import org.fentanylsolutions.eyesintheshadows.Config;
+
 public class FlyingAIAttackOnCollide extends EntityAIBase {
 
     private final EntityFlying attacker;
@@ -164,7 +166,7 @@ public class FlyingAIAttackOnCollide extends EntityAIBase {
 
         // If close enough to attack
         if (distanceToTargetSq <= attackRange && this.attackTick <= 0) {
-            this.attackTick = 20;
+            this.attackTick = Config.tickBetweenAttacks;
 
             this.attacker.attackEntityAsMob(target);
         }

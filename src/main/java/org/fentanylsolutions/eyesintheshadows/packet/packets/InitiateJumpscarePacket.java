@@ -1,5 +1,7 @@
 package org.fentanylsolutions.eyesintheshadows.packet.packets;
 
+import net.minecraft.client.Minecraft;
+
 import org.fentanylsolutions.eyesintheshadows.EyesInTheShadows;
 import org.fentanylsolutions.eyesintheshadows.client.JumpscareOverlay;
 
@@ -14,7 +16,8 @@ public class InitiateJumpscarePacket implements IMessageHandler<InitiateJumpscar
     public IMessage onMessage(SimpleMessage message, MessageContext ctx) {
         if (ctx.side.isClient()) {
             EyesInTheShadows.debug("Received InitiateJumpscarePacket packet");
-            JumpscareOverlay.INSTANCE.show(message.px, message.py, message.pz);
+            Minecraft.getMinecraft()
+                .func_152344_a(() -> JumpscareOverlay.INSTANCE.show(message.px, message.py, message.pz));
         }
         return null;
     }
